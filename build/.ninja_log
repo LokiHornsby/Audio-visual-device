@@ -1,0 +1,76 @@
+# ninja log v6
+2211	4213	7776770559907224	CMakeFiles/Keypad.dir/Keypad.cpp.obj	ccd6a78bd5eaccca
+169	651	7776770539512172	pico-sdk/src/rp2040/boot_stage2/CMakeFiles/bs2_default.dir/compile_time_choice.S.obj	13fe9d9d9d62a400
+661	1590	7776770553536674	pico-sdk/src/rp2040/boot_stage2/bs2_default.elf	2e34d0549162b5d7
+10152	11622	7776770639336259	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_float/float_init_rom_rp2040.c.obj	1a0e341c5f93ce82
+661	1590	7776770553536674	pico-sdk/src/rp2040/boot_stage2/bs2_default.dis	2e34d0549162b5d7
+1592	1845	7776770556096985	pico-sdk/src/rp2040/boot_stage2/bs2_default.bin	3d364619536000a2
+2223	4385	7776770560027206	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_stdlib/stdlib.c.obj	40cdbc53fe32c6c
+661	1590	7776770553536674	C:/Users/mydre/OneDrive/Documents/RGB keypad/Keypad/build/pico-sdk/src/rp2040/boot_stage2/bs2_default.dis	2e34d0549162b5d7
+1846	2210	7776770559617190	C:/Users/mydre/OneDrive/Documents/RGB keypad/Keypad/build/pico-sdk/src/rp2040/boot_stage2/bs2_default_padded_checksummed.S	3f2d96ad8dd0548
+10421	11406	7776770642016441	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_float/float_v1_rom_shim_rp2040.S.obj	7fd2b77d4d1c99a6
+1592	1845	7776770556096985	C:/Users/mydre/OneDrive/Documents/RGB keypad/Keypad/build/pico-sdk/src/rp2040/boot_stage2/bs2_default.bin	3d364619536000a2
+9340	10312	7776770631195605	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_double/double_aeabi_rp2040.S.obj	43266fc68e5d68f8
+8674	10803	7776770624538927	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_runtime_init/runtime_init.c.obj	71b618bbdac83c60
+11374	12770	7776770651685302	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_crt0/crt0.S.obj	cf9e60ede4b44b2d
+1846	2210	7776770559617190	pico-sdk/src/rp2040/boot_stage2/bs2_default_padded_checksummed.S	3f2d96ad8dd0548
+2272	3463	7776770560737240	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_platform_common/common.c.obj	10d505fd364b4f91
+2378	3522	7776770561797358	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_sync_spin_lock/sync_spin_lock.c.obj	4c94d182b92513b5
+4730	7231	7776770585066773	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_util/datetime.c.obj	8c194ae0b22209be
+2251	3844	7776770560387237	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2040/pico_platform/platform.c.obj	c635f7eb55409971
+8277	9658	7776770621198684	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_divider/divider.S.obj	b2205ecb18d53358
+2322	3871	7776770561147309	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/hardware_claim/claim.c.obj	56bf8d034566df9e
+2350	4163	7776770561447343	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_sync/sync.c.obj	305f930880d3c32
+4214	5941	7776770580900454	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_time/timeout_helper.c.obj	68ddb9d273de7792
+2306	4188	7776770560897275	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_platform_panic/panic.c.obj	3fc5e2acc01fc470
+5809	9313	7776770595901347	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_clocks/clocks.c.obj	5cb8a633df0f88f3
+2233	4725	7776770560207201	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_gpio/gpio.c.obj	68d3a15f4c3d5ee6
+3854	5071	7776770576346217	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_sync/lock_core.c.obj	27a571f616f2c316
+3508	5279	7776770572881812	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_irq/irq_handler_chain.S.obj	2e8190d4ce16bd03
+9697	10496	7776770635355931	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_double/double_v1_rom_shim_rp2040.S.obj	c39341153ccc0e00
+9528	10878	7776770633745804	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_double/double_init_rom_rp2040.c.obj	d54763f3ffd978d9
+2413	5524	7776770562057356	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_irq/irq.c.obj	e1a3b7ffd05374d6
+4175	5783	7776770579512474	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_sync/critical_section.c.obj	884dd401687b2da8
+5143	7989	7776770589236973	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_util/pheap.c.obj	b97644d43df8f314
+7363	9416	7776770612277959	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_bootrom/bootrom.c.obj	45cabab3fbaae743
+8570	9908	7776770624088896	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_runtime/runtime.c.obj	f1c4e202e1b06d0f
+3618	5825	7776770574927430	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_sync/sem.c.obj	9e222bcabaecc2f7
+4061	6161	7776770579108513	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_sync/mutex.c.obj	569237b6352eebf0
+4446	7022	7776770582921465	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_timer/timer.c.obj	877c1dda7a3dbec3
+9782	10436	7776770635615953	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_int64_ops/pico_int64_ops_aeabi.S.obj	3214b640a7053c41
+5638	7841	7776770595081248	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_uart/uart.c.obj	cc3f5546b52e1a61
+5958	7909	7776770597381464	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_vreg/vreg.c.obj	674bc2b3d7f12e9b
+5825	7940	7776770596051445	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_pll/pll.c.obj	39362f7bdcb29e13
+11760	12526	7776770655395637	pico-sdk/src/rp2040/boot_stage2/CMakeFiles/bs2_default_library.dir/bs2_default_padded_checksummed.S.obj	1c829f1c77327fb4
+5343	8219	7776770592440374	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_util/queue.c.obj	e262ac3e05607546
+4199	8457	7776770579718790	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/common/pico_time/time.c.obj	a04bc57b8a54ecc2
+8780	10510	7776770625599018	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.obj	e9bbbadb498a0e17
+7047	8662	7776770609937761	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_ticks/ticks.c.obj	29bb0938cc5e916f
+8944	9781	7776770627239191	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.obj	70fe534164a9c71a
+7846	8753	7776770616288285	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_bootrom/bootrom_lock.c.obj	c7a340fcd6bfc8d5
+7926	8899	7776770617068337	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_boot_lock/boot_lock.c.obj	219143b60ff370b7
+10906	12386	7776770646872238	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.obj	848542f1c2722368
+9663	12892	7776770634435852	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_double/double_math.c.obj	ab805f4a7a371a50
+6210	8943	7776770602191851	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_watchdog/watchdog.c.obj	e285caf23a473f82
+7948	9149	7776770617288360	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_flash/flash.c.obj	8f49bb3ed1468887
+8030	9681	7776770618878482	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/hardware_xosc/xosc.c.obj	8cbd4b9c93e7ac1f
+8900	10121	7776770626819177	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_runtime_init/runtime_init_stack_guard.c.obj	19fcd10bd247acd8
+10497	11336	7776770642762010	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_mem_ops/mem_ops_aeabi.S.obj	b5b431917633fb41
+9192	10421	7776770629985535	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_divider/divider_hardware.S.obj	f63b39397cfbbb6c
+10832	12855	7776770646122189	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_cxx_options/new_delete.cpp.obj	d507f20909f0e24c
+9923	10977	7776770637206087	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_float/float_aeabi_rp2040.S.obj	adb34e5b217b2f1e
+10437	11739	7776770642166471	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_malloc/malloc.c.obj	984cf847f8d49ae8
+10510	12617	7776770642901969	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_atomic/atomic.c.obj	9dfa7bd25bdbc4b8
+10335	13079	7776770641866468	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_float/float_math.c.obj	1e463442cd26e7c4
+11460	13389	7776770652645359	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_clib_interface/newlib_interface.c.obj	d2fde52ebfbb5701
+11626	13587	7776770654055478	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_stdio/stdio.c.obj	c27fc9e8793477ee
+11004	14103	7776770647842302	CMakeFiles/Keypad.dir/C_/Users/mydre/.pico-sdk/sdk/2.2.0/src/rp2_common/pico_printf/printf.c.obj	63390962c0ffcc9b
+14105	15492	7776770692525446	Keypad.elf	af8a6065b3c72764
+14105	15492	7776770692525446	Keypad.dis	af8a6065b3c72764
+14105	15492	7776770692525446	Keypad.hex	af8a6065b3c72764
+14105	15492	7776770692525446	Keypad.bin	af8a6065b3c72764
+14105	15492	7776770692525446	Keypad.uf2	af8a6065b3c72764
+14105	15492	7776770692525446	C:/Users/mydre/OneDrive/Documents/RGB keypad/Keypad/build/Keypad.dis	af8a6065b3c72764
+14105	15492	7776770692525446	C:/Users/mydre/OneDrive/Documents/RGB keypad/Keypad/build/Keypad.hex	af8a6065b3c72764
+14105	15492	7776770692525446	C:/Users/mydre/OneDrive/Documents/RGB keypad/Keypad/build/Keypad.bin	af8a6065b3c72764
+14105	15492	7776770692525446	C:/Users/mydre/OneDrive/Documents/RGB keypad/Keypad/build/Keypad.uf2	af8a6065b3c72764
