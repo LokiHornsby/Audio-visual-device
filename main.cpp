@@ -1,17 +1,13 @@
 #include "pico/stdlib.h"
-
 #include <string.h>
 #include <math.h>
-
-#include "pico/stdlib.h"
-#include "hardware/i2c.h"
-#include "hardware/spi.h"
 
 // Pimoroni RGB keypad lib
 #include "pico_rgb_keypad.cpp"
 #include "pico_rgb_keypad.hpp"
 using namespace pimoroni;
 PicoRGBKeypad pico_rgb_keypad;
+uint16_t current_buttons;
 
 int main() {
   	// LED
@@ -23,13 +19,21 @@ int main() {
 
 	// Keypad
     pico_rgb_keypad.init(); // Set up GPIO
-    pico_rgb_keypad.set_brightness(0.1f);
+    pico_rgb_keypad.set_brightness(0.5f);
 
-    for(auto y = 0u; y < pico_rgb_keypad.HEIGHT; y++) {
-        for(auto x = 0u; x < pico_rgb_keypad.WIDTH; x++) {
-            pico_rgb_keypad.illuminate(x, y, 255, 0, x * 5);
+    int g = 0;
+
+    while (true){
+        current_buttons = pico_rgb_keypad.get_button_states();
+
+        for (size_t i = 0; i < 16; i++){
+            if (current_buttons & (1 << i)) {
+                pico_rgb_keypad.illuminate(i, 255, 255, 255);
+            } else {
+                pico_rgb_keypad.illuminate(i, 0, 0, 0);
+            }
         }
-    }
 
-    pico_rgb_keypad.update();
+        pico_rgb_keypad.update();
+    }
 }
