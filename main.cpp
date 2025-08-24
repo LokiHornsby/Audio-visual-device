@@ -27,7 +27,7 @@ int main() {
 
     for(auto y = 0u; y < pico_rgb_keypad.HEIGHT; y++) {
         for(auto x = 0u; x < pico_rgb_keypad.WIDTH; x++) {
-            pico_rgb_keypad.illuminate(x, y, 255, 0, 255);
+            pico_rgb_keypad.illuminate(x, y, 255, 0, x * 5);
         }
     }
 
