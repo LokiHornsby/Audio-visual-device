@@ -1,5 +1,5 @@
 # Audio-visual-Device
-...
+An audio-visual setup for the pimoroni RGB keypad
 
 # Dependencies
 - [Pimoroni RGB keypad](https://shop.pimoroni.com/products/pico-rgb-keypad-base?variant=32369517166675)
