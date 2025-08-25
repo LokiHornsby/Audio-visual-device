@@ -3,13 +3,16 @@
 #include <math.h>
 
 // Pimoroni RGB keypad lib
-#include "pico_rgb_keypad.cpp"
-#include "pico_rgb_keypad.hpp"
+#include "picolib/pico_rgb_keypad.cpp"
+#include "picolib/pico_rgb_keypad.hpp"
 using namespace pimoroni;
 PicoRGBKeypad pico_rgb_keypad;
 uint16_t current_buttons;
 
 // FFT
+#include "kissfft/kiss_fft.h"
+#include "kissfft/kiss_fft.c"
+#include <cstdlib>
 // https://www.fftw.org/
 // https://www.fftw.org/fftw3_doc/Complex-One_002dDimensional-DFTs.html
 // https://github.com/mborgerding/kissfft
@@ -85,6 +88,64 @@ int main() {
     // feed array into FFT
     // use output frequency to change buttons animation
 
+    // FFT demo - ERROR : 
+    int a = 0;
+
+    // initialize input data for FFT
+    /**/
+    float input[] = { 11.0f, 3.0f, 4.05f, 9.0f, 10.3f, 8.0f, 4.934f, 5.11f };
+    int nfft = sizeof(input) / sizeof(float); // nfft = 8
+
+    // allocate input/output 1D arrays
+    kiss_fft_cpx* cin = new kiss_fft_cpx[nfft];
+    kiss_fft_cpx* cout = new kiss_fft_cpx[nfft];
+
+    // initialize data storage
+    memset(cin, 0, nfft * sizeof(kiss_fft_cpx));
+    memset(cout, 0, nfft * sizeof(kiss_fft_cpx));
+
+    // copy the input array to cin
+    for (int i = 0; i < nfft; ++i)
+    {
+        cin[i].r = input[i];
+    }
+
+    // setup the size and type of FFT: forward
+    bool is_inverse_fft = false;
+    kiss_fft_cfg cfg_f = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0); // typedef: struct kiss_fft_state*
+
+    // execute transform for 1D
+    kiss_fft(cfg_f, cin , cout);
+
+    // transformed: DC is stored in cout[0].r and cout[0].i
+    printf("\nForward Transform:\n");
+    for (int i = 0; i < nfft; ++i)
+    {
+        printf("#%d  %f %fj\n", i, cout[i].r,  cout[i].i);
+    }
+
+    a = cout[rand() % nfft].r;
+
+    // setup the size and type of FFT: backward
+    is_inverse_fft = true;
+    kiss_fft_cfg cfg_i = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0);
+
+    // execute the inverse transform for 1D
+    kiss_fft(cfg_i, cout, cin);
+
+    // original input data
+    printf("\nInverse Transform:\n");
+    for (int i = 0; i < nfft; ++i)
+    {
+        printf("#%d  %f\n", i, cin[i].r / nfft); // div by N to scale data back to the original range
+    }
+
+    // release resources
+    kiss_fft_free(cfg_f);
+    kiss_fft_free(cfg_i);
+    delete[] cin;
+    delete[] cout;/**/
+
 	// Keypad
     pico_rgb_keypad.init(); // Set up GPIO
 
@@ -93,7 +154,8 @@ int main() {
 
         for (size_t i = 0; i < 16; i++){
             if (current_buttons & (1 << i)) {
-                pico_rgb_keypad.set_brightness((float)(i + 1.00) / 16.00); // v (volume)
+                //pico_rgb_keypad.set_brightness((float)(i + 1.00) / 16.00); // v (volume)
+                pico_rgb_keypad.set_brightness(a);
                 setintensity(i); // e (energy)
 
                 // highlight
@@ -121,4 +183,6 @@ int main() {
        
         pico_rgb_keypad.update();
     }
+
+    return 0;
 }

@@ -33,20 +33,17 @@ project(blink C CXX ASM)
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# Add executable. Default name is the project name, version 0.1
+# CMAKE testing
+#add_library(kissfft kissfft/kiss_fft.c)
+#link_directories(kissfft)
 
+# Add executable. Default name is the project name, version 0.1
 add_executable(blink
     main.cpp
-    )
+)
 
-# pull in common dependencies
-target_link_libraries(blink pico_stdlib hardware_spi hardware_i2c)
-
-if (PICO_CYW43_SUPPORTED)
-    target_link_libraries(blink pico_cyw43_arch_none)
-endif()
+# pull in dependencies
+target_link_libraries(blink pico_stdlib hardware_spi hardware_i2c) #kissfft)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(blink)
-
-# add url via pico_set_program_url
