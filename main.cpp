@@ -3,7 +3,7 @@
 #include <math.h>
 
 // Pimoroni RGB keypad lib
-#include "picolib/pico_rgb_keypad.cpp"
+//#include "picolib/pico_rgb_keypad.cpp"
 #include "picolib/pico_rgb_keypad.hpp"
 using namespace pimoroni;
 PicoRGBKeypad pico_rgb_keypad;
@@ -11,13 +11,21 @@ uint16_t current_buttons;
 
 // FFT
 #include "kissfft/kiss_fft.h"
-#include "kissfft/kiss_fft.c"
+//#include "kissfft/kiss_fft.c" - thanks to CMake we don't need to import the C code anymore
 #include <cstdlib>
 // https://www.fftw.org/
 // https://www.fftw.org/fftw3_doc/Complex-One_002dDimensional-DFTs.html
 // https://github.com/mborgerding/kissfft
 // https://github.com/AlexFWulff/awulff-pico-playground/tree/main/adc_fft
 
+// frequency
+// https://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft
+/* 0:   Index * Sample rate / Bin size = frequency of index Hz
+  1:   1 * 44100 / 1024 =    43.1 Hz <- The first bin is 43.1 Hz - if we get the REAL number for this we get the amplitude of this frequency
+  // The imaginary number is slightly more complex - see https://stackoverflow.com/questions/25624548/fft-real-imaginary-abs-parts-interpretation
+  2:   2 * 44100 / 1024 =    86.1 Hz
+  3:   3 * 44100 / 1024 =   129.2 Hz
+*/
 // Input
 int arr [64] = { };
 

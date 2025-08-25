@@ -34,7 +34,8 @@ project(blink C CXX ASM)
 pico_sdk_init()
 
 # CMAKE testing
-#add_library(kissfft kissfft/kiss_fft.c)
+add_library(kissfft kissfft/kiss_fft.c)
+add_library(picolib picolib/pico_rgb_keypad.cpp)
 #link_directories(kissfft)
 
 # Add executable. Default name is the project name, version 0.1
@@ -43,7 +44,7 @@ add_executable(blink
 )
 
 # pull in dependencies
-target_link_libraries(blink pico_stdlib hardware_spi hardware_i2c) #kissfft)
+target_link_libraries(blink pico_stdlib hardware_spi hardware_i2c kissfft picolib)
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(blink)
