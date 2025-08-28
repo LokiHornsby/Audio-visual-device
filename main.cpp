@@ -26,8 +26,11 @@ uint16_t current_buttons;
   2:   2 * 44100 / 1024 =    86.1 Hz
   3:   3 * 44100 / 1024 =   129.2 Hz
 */
+
 // Input
 int arr [64] = { };
+#include "hardware/gpio.h"
+#include "hardware/adc.h"
 
 // animation
 int r [16] = { };
@@ -91,6 +94,15 @@ int main() {
     // Input
     gpio_init(3);
     gpio_get(3);
+
+    adc_init();
+    // Make sure GPIO is high-impedance, no pullups etc
+    adc_gpio_init(26);
+    // Select ADC input 0 (GPIO26)
+    adc_select_input(0);
+    const float conversion_factor = 3.3f / (1 << 12);
+    uint16_t voltage = adc_read() * conversion_factor;
+
     // get current frequency from GPIO pin (how? - gpio_get only returns LOW or HIGH) (can we record the LOW and HIGH as a sinewave?)
     // capture 64 (or more?) times and feed into array
     // feed array into FFT
