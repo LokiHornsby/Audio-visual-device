@@ -28,23 +28,20 @@ set(PICO_BOARD pico CACHE STRING "Board type")
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
 
+# create project
 project(blink C CXX ASM)
 
 # Initialise the Raspberry Pi Pico SDK
 pico_sdk_init()
 
-# CMAKE testing
-add_library(kissfft kissfft/kiss_fft.c)
-add_library(picolib picolib/pico_rgb_keypad.cpp)
-#link_directories(kissfft)
-
-# Add executable. Default name is the project name, version 0.1
+# link files
 add_executable(blink
-    main.cpp
+    Audio-visual-device.cpp
+    picolib/pico_rgb_keypad.cpp
 )
 
 # pull in dependencies
-target_link_libraries(blink pico_stdlib hardware_spi hardware_i2c hardware_adc kissfft picolib)
+target_link_libraries(blink pico_stdlib hardware_spi hardware_i2c hardware_adc )
 
 # create map/bin/hex file etc.
 pico_add_extra_outputs(blink)

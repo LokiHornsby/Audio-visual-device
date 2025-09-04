@@ -1,5 +1,3 @@
-C:/Users/mydre/Documents/Audio-visual-device/build/CMakeFiles/kissfft.dir
-C:/Users/mydre/Documents/Audio-visual-device/build/CMakeFiles/picolib.dir
 C:/Users/mydre/Documents/Audio-visual-device/build/CMakeFiles/blink.dir
 C:/Users/mydre/Documents/Audio-visual-device/build/CMakeFiles/edit_cache.dir
 C:/Users/mydre/Documents/Audio-visual-device/build/CMakeFiles/rebuild_cache.dir

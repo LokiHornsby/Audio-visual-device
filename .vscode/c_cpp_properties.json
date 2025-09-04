@@ -7,15 +7,28 @@
                 "${userHome}/.pico-sdk/sdk/2.2.0/**"
             ],
             "forcedInclude": [
-                "${userHome}/.pico-sdk/sdk/2.2.0/src/common/pico_base_headers/include/pico.h",
-                "${workspaceFolder}/build/generated/pico_base/pico/config_autogen.h"
+                "${workspaceFolder}/build/generated/pico_base/pico/config_autogen.h",
+                "${userHome}/.pico-sdk/sdk/2.2.0/src/common/pico_base_headers/include/pico.h"
             ],
             "defines": [],
-            "compilerPath": "${userHome}/.pico-sdk/toolchain/14_2_Rel1/bin/arm-none-eabi-gcc.exe",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "compilerPath": "${userHome}/.pico-sdk/toolchain/14_2_Rel1/bin/arm-none-eabi-gcc",
+            "compileCommands": [
+                "${workspaceFolder}/build/compile_commands.json"
+            ],
             "cStandard": "c17",
             "cppStandard": "c++14",
-            "intelliSenseMode": "linux-gcc-arm"
+            "intelliSenseMode": "windows-gcc-arm"
+        },
+        {
+            "name": "pico_test",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ]
         }
     ],
     "version": 4

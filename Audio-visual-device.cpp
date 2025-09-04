@@ -1,18 +1,52 @@
-#include "pico/stdlib.h"
-#include <string.h>
 #include <math.h>
+#include "pico/stdlib.h"
+#include <stdio.h>
 
-// Pimoroni RGB keypad lib
-//#include "picolib/pico_rgb_keypad.cpp"
 #include "picolib/pico_rgb_keypad.hpp"
 using namespace pimoroni;
 PicoRGBKeypad pico_rgb_keypad;
 uint16_t current_buttons;
 
+#include "hardware/adc.h"
+
+int main (){
+    adc_init();
+    // Make sure GPIO is high-impedance, no pullups etc
+    adc_gpio_init(26);
+    // Select ADC input 0 (GPIO26)
+    adc_select_input(0);
+
+    pico_rgb_keypad.init(); // Set up GPIO
+    pico_rgb_keypad.set_brightness(1.0f);
+    
+
+    while (true){
+        pico_rgb_keypad.illuminate(0, 255, adc_read(), 0);
+        pico_rgb_keypad.update();
+        
+        if (adc_read() > 1024){ // what is ADC_READ max?
+             pico_rgb_keypad.illuminate(1, 255, adc_read(), 0);
+        }
+    }
+
+    return 0;
+}
+
+//#include "pico/stdlib.h"
+//#include <string.h>
+//#include <math.h>
+
+// Pimoroni RGB keypad lib
+//#include "picolib/pico_rgb_keypad.cpp"
+//#include "picolib/pico_rgb_keypad.hpp"
+//using namespace pimoroni;
+//PicoRGBKeypad pico_rgb_keypad;
+//uint16_t current_buttons;
+
 // FFT
-#include "kissfft/kiss_fft.h"
+//#include "kissfft/kiss_fft.h"
 //#include "kissfft/kiss_fft.c" - thanks to CMake we don't need to import the C code anymore
-#include <cstdlib>
+//#include <cstdlib>
 // https://www.fftw.org/
 // https://www.fftw.org/fftw3_doc/Complex-One_002dDimensional-DFTs.html
 // https://github.com/mborgerding/kissfft
@@ -27,10 +61,11 @@ uint16_t current_buttons;
   3:   3 * 44100 / 1024 =   129.2 Hz
 */
 
+/*
 // Input
 int arr [64] = { };
 #include "hardware/gpio.h"
-#include "hardware/adc.h"
+//#include "hardware/adc.h"
 
 // animation
 int r [16] = { };
@@ -41,7 +76,7 @@ void setintensity(int in){
     // intensity graph
                 
     // intensity : 1 
-    r[0] = 255;
+    g[0] = 255;
     
     // intensity : 2
     if (in > 0){
@@ -84,6 +119,9 @@ void setintensity(int in){
 }
 
 int main() {
+    //int arr [1024] = { 0 };
+    //LFFT(arr, false);
+
   	// onboard LED
   	gpio_init(PICO_DEFAULT_LED_PIN);
     gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
@@ -95,7 +133,7 @@ int main() {
     gpio_init(3);
     gpio_get(3);
 
-    adc_init();
+    /*adc_init();
     // Make sure GPIO is high-impedance, no pullups etc
     adc_gpio_init(26);
     // Select ADC input 0 (GPIO26)
@@ -108,11 +146,14 @@ int main() {
     // feed array into FFT
     // use output frequency to change buttons animation
 
+        // 1024 units
+        // out = FFT(units)
+        // print(out) > Frequencies
+
     // FFT demo - ERROR : 
     int a = 0;
 
     // initialize input data for FFT
-    /**/
     float input[] = { 11.0f, 3.0f, 4.05f, 9.0f, 10.3f, 8.0f, 4.934f, 5.11f };
     int nfft = sizeof(input) / sizeof(float); // nfft = 8
 
@@ -164,7 +205,7 @@ int main() {
     kiss_fft_free(cfg_f);
     kiss_fft_free(cfg_i);
     delete[] cin;
-    delete[] cout;/**/
+    delete[] cout;
 
 	// Keypad
     pico_rgb_keypad.init(); // Set up GPIO
@@ -175,13 +216,13 @@ int main() {
         for (size_t i = 0; i < 16; i++){
             if (current_buttons & (1 << i)) {
                 //pico_rgb_keypad.set_brightness((float)(i + 1.00) / 16.00); // v (volume)
-                pico_rgb_keypad.set_brightness(a);
+                pico_rgb_keypad.set_brightness(1.0f);
                 setintensity(i); // e (energy)
 
                 // highlight
                 r[i] = 0;
-                b[i] = 50;
-                g[i] = 0;
+                b[i] = 0;
+                g[i] = 255;
             } 
 
             if (r[i] > 0){
@@ -196,7 +237,7 @@ int main() {
                 b[i]--;
             }
 
-            pico_rgb_keypad.illuminate(i, r[i], g[i], b[i]);
+            pico_rgb_keypad.illuminate(i, 0, 0, b[i]);
         }
 
         sleep_ms(1);   
@@ -204,5 +245,8 @@ int main() {
         pico_rgb_keypad.update();
     }
 
+    pico_rgb_keypad.illuminate(0, 0, 0, 255);
+    pico_rgb_keypad.update();
+
     return 0;
-}
+}*/
