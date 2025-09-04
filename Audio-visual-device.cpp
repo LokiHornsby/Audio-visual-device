@@ -19,14 +19,24 @@ int main (){
     pico_rgb_keypad.init(); // Set up GPIO
     pico_rgb_keypad.set_brightness(1.0f);
     
-
-    while (true){
-        pico_rgb_keypad.illuminate(0, 255, adc_read(), 0);
-        pico_rgb_keypad.update();
+    int t = 0;
+    // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
+    // 1 << 12 = 4096 bitshift left <-- adc max https://circuitdigest.com/calculators/bit-shift-calculator 
+    const float conversion_factor = 3.3f / (1 << 12);
+    while (true){ // work on this V
+        float v = adc_read();
         
-        if (adc_read() > 1024){ // what is ADC_READ max?
-             pico_rgb_keypad.illuminate(1, 255, adc_read(), 0);
+        pico_rgb_keypad.illuminate(0, 255, v / 4096.0f, 0);
+        pico_rgb_keypad.update();
+
+        // onset
+        if (v > 4096.0f){ // max
+            t = 255;
         }
+
+        pico_rgb_keypad.illuminate(1, 0, t, 0);
+        t--;
+        sleep_ms(1);
     }
 
     return 0;
