@@ -9,7 +9,17 @@ uint16_t current_buttons;
 
 #include "hardware/adc.h"
 
+//#include "LFFT/LFFT.c"
+
+int calibrate = 0;
+int capture = 1024 * 64;
+float silence = 0;
+int sil_i = 0;
+
 int main (){
+    //int arr [1024] = { 0 };
+    //LFFT(arr, true);
+
     adc_init();
     // Make sure GPIO is high-impedance, no pullups etc
     adc_gpio_init(26);
@@ -25,18 +35,62 @@ int main (){
     const float conversion_factor = 3.3f / (1 << 12);
     while (true){ // work on this V
         float v = adc_read();
-        
-        pico_rgb_keypad.illuminate(0, 255, v / 4096.0f, 0);
-        pico_rgb_keypad.update();
 
-        // onset
-        if (v > 4096.0f){ // max
-            t = 255;
+        // O
+        if (calibrate == 0){
+            for (int i = 0; i < 16; i++){
+                pico_rgb_keypad.illuminate(i, 255, 0, 0);
+            }
+
+            if (pico_rgb_keypad.get_button_states() > 0b0){
+                calibrate = 1;
+            }
         }
 
-        pico_rgb_keypad.illuminate(1, 0, t, 0);
-        t--;
-        sleep_ms(1);
+        //
+        if (calibrate == 1){
+            if (sil_i < capture){
+                silence += v;
+                sil_i++;
+
+                for (int i = 0; i < 16; i++){
+                    pico_rgb_keypad.illuminate(i, 0, 0, 255);
+                }
+            } else {
+                silence = silence / capture;
+
+                calibrate = 2;
+            }
+        }
+
+        if (calibrate == 2){
+            for (int i = 0; i < 16; i++){
+                if (v > silence * 1.25f){
+                    pico_rgb_keypad.illuminate(i, 255, 0, 0);
+                } else {
+                    pico_rgb_keypad.illuminate(i, 0, 0, 0);
+                }
+            }
+     
+        }
+
+        // 
+        
+
+        //if (pico_rgb_keypad.get_button_states() & (0b1 << 0)){
+        //    pico_rgb_keypad.illuminate(0, 0, 255, 0);
+        //}
+
+        
+
+        /*
+        if (v > 4096/2){
+            pico_rgb_keypad.illuminate(1, 0, 255, 0);
+        } else {
+            pico_rgb_keypad.illuminate(1, 0, 0, 0);
+        }*/
+
+        pico_rgb_keypad.update();
     }
 
     return 0;
