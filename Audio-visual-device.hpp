@@ -11,12 +11,7 @@ int calibrate_stage = 0;
 
 //// Calculate silence
 float s = 0.0;
-float s_peak; // peaks
-
-// frames
+float s_peak;
 const int s_frames = 64;
 int s_fi;
-
-// captures
-const int s_captures = 64; 
-int s_cpi;
+int s_captures;

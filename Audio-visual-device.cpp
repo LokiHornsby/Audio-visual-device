@@ -5,26 +5,37 @@
 // include library
 #include "Audio-visual-device.hpp"
 
+/// @brief Display a bar graph on the keypad
+/// @param v input voltage (as percentage)
+/// @param r red
+/// @param g green
+/// @param b blue
 void bar(float v, int r, int g, int b){
-    pico_rgb_keypad.clear();
-
+    // def x and y
     int x = 0;
-    int y = 4;
+    int y = 3;
 
+    // loop through each button
     for (int i = 0; i < 16; i++){
+        // if the input voltage is higher than a divisor
         if (v > 0.0625f * i){
+            // illuminate the key
             pico_rgb_keypad.illuminate(x, y, r, g, b);
         }
 
+        // decrement y (start from bottom and go up)
         y--;
 
+        // if at top then move to next column
         if (y < 0){
             x++;
-            y = 4;
+            y = 3;
         }
     }
 }
 
+/// @brief Main function
+/// @return 
 int main (){
     // initialise pico rgb keypad
     pico_rgb_keypad.init();
@@ -59,19 +70,27 @@ int main (){
                 break;
 
             case 1:
-                // display bar
-                bar(v, 0, 0, v * 255);
+                pico_rgb_keypad.clear();
 
-                // illuminate record button
-                pico_rgb_keypad.illuminate(15, 255, 255, 0);
+                // display bar
+                bar(v, 255 - s_captures, v * s_captures, 0);
 
                 // if the record button is released      
-                if (!(pico_rgb_keypad.get_button_states() & (0b1 << 15))){
-                    // return to first stage
-                    s_cpi = 0;
-                    s_fi = 0;
-                    s_peak = 0;
+                if (s_captures >= 255){
+                    // calculate average silence using peaks
+                    s = s / s_captures;
+
+                    // clear visuals
+                    pico_rgb_keypad.clear();
+
+                    // change stage
+                    calibrate_stage = 2;
+                } else if (!(pico_rgb_keypad.get_button_states() & (0b1 << 15))) {
+                    // reset
                     s = 0;
+                    s_peak = 0;
+                    s_fi = 0;
+                    s_captures = 0;
                     calibrate_stage = 0;
                 }
 
@@ -86,7 +105,7 @@ int main (){
                     s += s_peak;
 
                     // increment capture index
-                    s_cpi++; 
+                    s_captures++; 
 
                     // reset peak value
                     s_peak = 0;
@@ -95,25 +114,14 @@ int main (){
                     s_fi = 0;
                 }
 
-                // if the captures are over the limit
-                if (s_cpi == s_captures){
-                    // calculate average silence using peaks
-                    s = s / s_captures;
-
-                    // clear visuals
-                    pico_rgb_keypad.clear();
-
-                    // change stage
-                    calibrate_stage = 2;
-                }
-
                 // increment frame index
                 s_fi++;
 
                 break;
 
             case 2:
-                bar((v - s), 255, 0, 0);
+                pico_rgb_keypad.clear();
+                bar(v-s, 0, 255, 0);
 
                 break;
             
