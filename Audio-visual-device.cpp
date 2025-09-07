@@ -5,8 +5,6 @@
 // include library
 #include "Audio-visual-device.hpp"
 
-
-
 /// @brief Display a bar graph on the keypad
 /// @param v input voltage (as percentage)
 /// @param r red
@@ -65,17 +63,11 @@ int main (){
 
         switch (calibrate_stage){
             case 0:
-                // illuminate record button and fill the rest white
-                for (int i = 0; i < 16; i++){
-                    if (i != 15){
-                        pico_rgb_keypad.illuminate(i, 50, 50, 50);
-                    } else {
-                        pico_rgb_keypad.illuminate(15, 0, 255, 0);
-                    }
-                }
+                // illuminate record button
+                pico_rgb_keypad.illuminate(0, 255, 0, 0);
                 
                 // if the record button is pressed change stage
-                if (pico_rgb_keypad.get_button_states() & (0b1 << 15)){
+                if (pico_rgb_keypad.get_button_states() & (0b1 << 0)){
                     calibrate_stage = 1;
                 }
 
@@ -84,10 +76,8 @@ int main (){
             case 1:
                 pico_rgb_keypad.clear();
 
-                // update all keypads
-                for (int i = 0; i < 16; i++){
-                    pico_rgb_keypad.illuminate(0, 255 - s_captures, s_captures, 0);
-                }
+                // update 
+                pico_rgb_keypad.illuminate(0, 255 - s_captures, s_captures, 0);
 
                 // if we've captured x amount of peaks      
                 if (s_captures >= 255){
@@ -100,7 +90,7 @@ int main (){
                     // change stage
                     calibrate_stage = 2;
                 // if we haven't captured enough peaks and the button is released
-                } else if (!(pico_rgb_keypad.get_button_states() & (0b1 << 15))) {
+                } else if (!(pico_rgb_keypad.get_button_states() & (0b1 << 0))) {
                     // reset
                     s = 0;
                     s_peak = 0;
@@ -140,7 +130,7 @@ int main (){
                 //bar((v - s) * 1.0f);
 
                 // record samples
-                sample[sample_i] = (v - s) * 100.0f;
+                sample[sample_i] = (v - s) * 255;
                 sample_i++;
 
                 if (sample_i == 64){
@@ -171,14 +161,20 @@ int main (){
                     kiss_fft(cfg_f, cin , cout);
 
                     // transformed: DC is stored in cout[0].r and cout[0].i
-                    printf("\nForward Transform:\n");
-                    for (int i = 0; i < nfft; ++i)
-                    {
-                        printf("#%d  %f %fj\n", i, cout[i].r,  cout[i].i);
-                    }
 
                     for (int i = 0; i < 16; i++){
-                        pico_rgb_keypad.illuminate(i, 0, cout[i].i, 0);
+                        int mean = 0;
+                        int size = nfft / 16;
+
+                        for (int j = 0; j < size; j++){
+                            mean += cout[(size * i) + j].i;
+                        }
+
+                        mean = mean / size;
+                        
+                        if (mean > 100){ // temp
+                            pico_rgb_keypad.illuminate(i, 0, mean, 0);
+                        }
                     }
 
                     // release resources
@@ -217,3 +213,6 @@ int main (){
   // The imaginary number is slightly more complex - see https://stackoverflow.com/questions/25624548/fft-real-imaginary-abs-parts-interpretation
   2:   2 * 44100 / 1024 =    86.1 Hz
   */
+
+// LED Screen
+// https://www.aliexpress.com/item/1005008005112441.html?spm=a2g0o.tesla.0.0.3dc5oZXgoZXgOa&pdp_npi=6%40dis%21USD%21%2413.92%21%240.99%21%21%21%21%21%40211b618e17572643030058606e76ce%2112000043231311504%21btf%21%21%21%211%210%21&afTraceInfo=1005008005112441__pc__c_ppc_item_bridge_pc_main__UgW8L9M__1757264303097
