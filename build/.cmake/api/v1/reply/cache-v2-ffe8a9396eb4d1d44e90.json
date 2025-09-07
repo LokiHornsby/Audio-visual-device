@@ -1926,7 +1926,7 @@
 					"value" : "No help, variable specified on the command line."
 				}
 			],
-			"type" : "STRING",
+			"type" : "UNINITIALIZED",
 			"value" : "c:/Users/mydre/AppData/Local/Programs/Python/Python313/python.exe"
 		},
 		{

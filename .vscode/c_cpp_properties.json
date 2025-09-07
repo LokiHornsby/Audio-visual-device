@@ -11,24 +11,13 @@
                 "${userHome}/.pico-sdk/sdk/2.2.0/src/common/pico_base_headers/include/pico.h"
             ],
             "defines": [],
-            "compilerPath": "${userHome}/.pico-sdk/toolchain/14_2_Rel1/bin/arm-none-eabi-gcc",
+            "compilerPath": "C:/w64devkit/bin/g++.exe",
             "compileCommands": [
                 "${workspaceFolder}/build/compile_commands.json"
             ],
             "cStandard": "c17",
             "cppStandard": "c++14",
             "intelliSenseMode": "windows-gcc-arm"
-        },
-        {
-            "name": "pico_test",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
-            ]
         }
     ],
     "version": 4

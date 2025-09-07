@@ -324,7 +324,7 @@ PICO_STDIO_UART:BOOL=ON
 PICO_STDIO_USB:BOOL=OFF
 
 //No help, variable specified on the command line.
-Python3_EXECUTABLE:STRING=c:/Users/mydre/AppData/Local/Programs/Python/Python313/python.exe
+Python3_EXECUTABLE:UNINITIALIZED=c:/Users/mydre/AppData/Local/Programs/Python/Python313/python.exe
 
 //Value Computed by CMake
 blink_BINARY_DIR:STATIC=C:/Users/mydre/Documents/Audio-visual-device/build

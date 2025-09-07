@@ -39,6 +39,8 @@
     "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
     "files.associations": {
         "sdl_main.h": "c",
-        "sdl.h": "c"
+        "sdl.h": "c",
+        "cmath": "cpp",
+        "random": "cpp"
     }
 }

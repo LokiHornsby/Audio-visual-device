@@ -2,80 +2,133 @@
 #include "pico/stdlib.h"
 #include <stdio.h>
 
-#include "picolib/pico_rgb_keypad.hpp"
-using namespace pimoroni;
-PicoRGBKeypad pico_rgb_keypad;
-uint16_t current_buttons;
+// include library
+#include "Audio-visual-device.hpp"
 
-#include "hardware/adc.h"
+void bar(float v, int r, int g, int b){
+    pico_rgb_keypad.clear();
 
-//#include "LFFT/LFFT.c"
+    int x = 0;
+    int y = 4;
 
-int calibrate = 0;
-int capture = 1024 * 64;
-float silence = 0;
-int sil_i = 0;
+    for (int i = 0; i < 16; i++){
+        if (v > 0.0625f * i){
+            pico_rgb_keypad.illuminate(x, y, r, g, b);
+        }
+
+        y--;
+
+        if (y < 0){
+            x++;
+            y = 4;
+        }
+    }
+}
 
 int main (){
-    //int arr [1024] = { 0 };
-    //LFFT(arr, true);
+    // initialise pico rgb keypad
+    pico_rgb_keypad.init();
 
+    // initialise ADC
     adc_init();
     // Make sure GPIO is high-impedance, no pullups etc
     adc_gpio_init(26);
     // Select ADC input 0 (GPIO26)
     adc_select_input(0);
 
-    pico_rgb_keypad.init(); // Set up GPIO
-    pico_rgb_keypad.set_brightness(1.0f);
-    
-    int t = 0;
-    // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
-    // 1 << 12 = 4096 bitshift left <-- adc max https://circuitdigest.com/calculators/bit-shift-calculator 
-    const float conversion_factor = 3.3f / (1 << 12);
-    while (true){ // work on this V
-        float v = adc_read();
+    while (true){ 
+        // read voltage as percentage
+        float v = adc_read() / 4096.0f; // 4096 == 1 << 12
 
-        // O
-        if (calibrate == 0){
-            for (int i = 0; i < 16; i++){
-                pico_rgb_keypad.illuminate(i, 255, 0, 0);
-            }
-
-            if (pico_rgb_keypad.get_button_states() > 0b0){
-                calibrate = 1;
-            }
-        }
-
-        //
-        if (calibrate == 1){
-            if (sil_i < capture){
-                silence += v;
-                sil_i++;
-
+        switch (calibrate_stage){
+            case 0:
+                // illuminate record button and fill the rest white
                 for (int i = 0; i < 16; i++){
-                    pico_rgb_keypad.illuminate(i, 0, 0, 255);
+                    if (i != 15){
+                        pico_rgb_keypad.illuminate(i, 50, 50, 50);
+                    } else {
+                        pico_rgb_keypad.illuminate(15, 0, 255, 0);
+                    }
                 }
-            } else {
-                silence = silence / capture;
+                
+                // if the record button is pressed change stage
+                if (pico_rgb_keypad.get_button_states() & (0b1 << 15)){
+                    calibrate_stage = 1;
+                }
 
-                calibrate = 2;
-            }
+                break;
+
+            case 1:
+                // display bar
+                bar(v, 0, 0, v * 255);
+
+                // illuminate record button
+                pico_rgb_keypad.illuminate(15, 255, 255, 0);
+
+                // if the record button is released      
+                if (!(pico_rgb_keypad.get_button_states() & (0b1 << 15))){
+                    // return to first stage
+                    s_cpi = 0;
+                    s_fi = 0;
+                    s_peak = 0;
+                    s = 0;
+                    calibrate_stage = 0;
+                }
+
+                // record peak
+                if (v > s_peak){
+                    s_peak = v;
+                }
+
+                // if the frames are over the limit
+                if (s_fi == s_frames){
+                    // record the most recent peak to "s" var
+                    s += s_peak;
+
+                    // increment capture index
+                    s_cpi++; 
+
+                    // reset peak value
+                    s_peak = 0;
+
+                    // reset frame index
+                    s_fi = 0;
+                }
+
+                // if the captures are over the limit
+                if (s_cpi == s_captures){
+                    // calculate average silence using peaks
+                    s = s / s_captures;
+
+                    // clear visuals
+                    pico_rgb_keypad.clear();
+
+                    // change stage
+                    calibrate_stage = 2;
+                }
+
+                // increment frame index
+                s_fi++;
+
+                break;
+
+            case 2:
+                bar((v - s), 255, 0, 0);
+
+                break;
+            
+            default:
+                break;
         }
 
-        if (calibrate == 2){
-            for (int i = 0; i < 16; i++){
-                if (v > silence * 1.25f){
-                    pico_rgb_keypad.illuminate(i, 255, 0, 0);
-                } else {
-                    pico_rgb_keypad.illuminate(i, 0, 0, 0);
-                }
-            }
-     
-        }
+        pico_rgb_keypad.update();
+    }
 
-        // 
-        
+    return 0;
+}
+
+/*
+
 
         //if (pico_rgb_keypad.get_button_states() & (0b1 << 0)){
         //    pico_rgb_keypad.illuminate(0, 0, 255, 0);
@@ -88,13 +141,10 @@ int main (){
             pico_rgb_keypad.illuminate(1, 0, 255, 0);
         } else {
             pico_rgb_keypad.illuminate(1, 0, 0, 0);
-        }*/
-
-        pico_rgb_keypad.update();
-    }
-
-    return 0;
-}
+        }
+    // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
+    // 1 << 12 = 4096 bitshift left <-- adc max https://circuitdigest.com/calculators/bit-shift-calculator 
+    const float conversion_factor = 3.3f / (1 << 12);*/
 
 //#include "pico/stdlib.h"
 //#include <string.h>

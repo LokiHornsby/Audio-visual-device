@@ -5,7 +5,6 @@ namespace pimoroni {
   class PicoRGBKeypad {
   private:
     static const uint8_t KEYPAD_ADDRESS = 0x20;
-    static constexpr float DEFAULT_BRIGHTNESS = 0.5f;
   public:
     static const int WIDTH = 4;
     static const int HEIGHT = 4;
