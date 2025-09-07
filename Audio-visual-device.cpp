@@ -84,8 +84,10 @@ int main (){
             case 1:
                 pico_rgb_keypad.clear();
 
-                // display bar
-                bar(v, 255 - s_captures, s_captures);
+                // update all keypads
+                for (int i = 0; i < 16; i++){
+                    pico_rgb_keypad.illuminate(0, 255 - s_captures, s_captures, 0);
+                }
 
                 // if we've captured x amount of peaks      
                 if (s_captures >= 255){
@@ -175,8 +177,9 @@ int main (){
                         printf("#%d  %f %fj\n", i, cout[i].r,  cout[i].i);
                     }
 
-
-                    pico_rgb_keypad.illuminate(15, 255, cout[32].i * 255, 0);
+                    for (int i = 0; i < 16; i++){
+                        pico_rgb_keypad.illuminate(i, 0, cout[i].i, 0);
+                    }
 
                     // release resources
                     kiss_fft_free(cfg_f);
@@ -200,7 +203,6 @@ int main (){
 }
 
 // FFT
-//
 //#include "kissfft/kiss_fft.c" - thanks to CMake we don't need to import the C code anymore
 //#include <cstdlib>
 // https://www.fftw.org/
@@ -214,88 +216,4 @@ int main (){
   1:   1 * 44100 / 1024 =    43.1 Hz <- The first bin is 43.1 Hz - if we get the REAL number for this we get the amplitude of this frequency
   // The imaginary number is slightly more complex - see https://stackoverflow.com/questions/25624548/fft-real-imaginary-abs-parts-interpretation
   2:   2 * 44100 / 1024 =    86.1 Hz
-  3:   3 * 44100 / 1024 =   129.2 Hz
-
-
-/*
-
-int main() {
-    //int arr [1024] = { 0 };
-    //LFFT(arr, false);
-
-  	// onboard LED
-  	gpio_init(PICO_DEFAULT_LED_PIN);
-    gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-	gpio_put(PICO_DEFAULT_LED_PIN, true);
-	sleep_ms(250);
-	gpio_put(PICO_DEFAULT_LED_PIN, false);
-
-    // Input
-    gpio_init(3);
-    gpio_get(3);
-
-    /*adc_init();
-    // Make sure GPIO is high-impedance, no pullups etc
-    adc_gpio_init(26);
-    // Select ADC input 0 (GPIO26)
-    adc_select_input(0);
-    const float conversion_factor = 3.3f / (1 << 12);
-    uint16_t voltage = adc_read() * conversion_factor;
-
-    // get current frequency from GPIO pin (how? - gpio_get only returns LOW or HIGH) (can we record the LOW and HIGH as a sinewave?)
-    // capture 64 (or more?) times and feed into array
-    // feed array into FFT
-    // use output frequency to change buttons animation
-
-        // 1024 units
-        // out = FFT(units)
-        // print(out) > Frequencies
-
-    // FFT demo - ERROR : 
-    int a = 0;
-
-    
-
-	// Keypad
-    pico_rgb_keypad.init(); // Set up GPIO
-
-    while (true){
-        current_buttons = pico_rgb_keypad.get_button_states();
-
-        for (size_t i = 0; i < 16; i++){
-            if (current_buttons & (1 << i)) {
-                //pico_rgb_keypad.set_brightness((float)(i + 1.00) / 16.00); // v (volume)
-                pico_rgb_keypad.set_brightness(1.0f);
-                setintensity(i); // e (energy)
-
-                // highlight
-                r[i] = 0;
-                b[i] = 0;
-                g[i] = 255;
-            } 
-
-            if (r[i] > 0){
-                r[i]--;
-            }
-
-            if (g[i] > 0){
-                g[i]--;
-            }
-
-            if (b[i] > 0){
-                b[i]--;
-            }
-
-            pico_rgb_keypad.illuminate(i, 0, 0, b[i]);
-        }
-
-        sleep_ms(1);   
-       
-        pico_rgb_keypad.update();
-    }
-
-    pico_rgb_keypad.illuminate(0, 0, 0, 255);
-    pico_rgb_keypad.update();
-
-    return 0;
-}*/
+  */
