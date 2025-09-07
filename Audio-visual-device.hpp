@@ -15,3 +15,10 @@ float s_peak;
 const int s_frames = 64;
 int s_fi;
 int s_captures;
+
+// FFT
+#include "kissfft/kiss_fft.h"
+
+//// record sample
+int sample [64] = { 0 };
+int sample_i;

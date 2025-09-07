@@ -5,12 +5,14 @@
 // include library
 #include "Audio-visual-device.hpp"
 
+
+
 /// @brief Display a bar graph on the keypad
 /// @param v input voltage (as percentage)
 /// @param r red
 /// @param g green
 /// @param b blue
-void bar(float v, int r, int g, int b){
+void bar(float v, int r = 0, int g = 0, int b = 0){
     // def x and y
     int x = 0;
     int y = 3;
@@ -20,7 +22,17 @@ void bar(float v, int r, int g, int b){
         // if the input voltage is higher than a divisor
         if (v > 0.0625f * i){
             // illuminate the key
-            pico_rgb_keypad.illuminate(x, y, r, g, b);
+            if (r == 0 && g == 0 && b == 0){
+                int rv = 0;
+                int gv = 0;
+                if (y == 0) { rv = 255; }
+                else if (y == 1) { rv = 255; gv = 255; }
+                else if (y == 2){ gv = 255; } 
+                else { gv = 255; }
+                pico_rgb_keypad.illuminate(x, y, rv, gv, 0);
+            } else {
+                pico_rgb_keypad.illuminate(x, y, r, g, 0);
+            }
         }
 
         // decrement y (start from bottom and go up)
@@ -73,9 +85,9 @@ int main (){
                 pico_rgb_keypad.clear();
 
                 // display bar
-                bar(v, 255 - s_captures, v * s_captures, 0);
+                bar(v, 255 - s_captures, s_captures);
 
-                // if the record button is released      
+                // if we've captured x amount of peaks      
                 if (s_captures >= 255){
                     // calculate average silence using peaks
                     s = s / s_captures;
@@ -85,6 +97,7 @@ int main (){
 
                     // change stage
                     calibrate_stage = 2;
+                // if we haven't captured enough peaks and the button is released
                 } else if (!(pico_rgb_keypad.get_button_states() & (0b1 << 15))) {
                     // reset
                     s = 0;
@@ -120,8 +133,59 @@ int main (){
                 break;
 
             case 2:
+                // show bar
                 pico_rgb_keypad.clear();
-                bar(v-s, 0, 255, 0);
+                //bar((v - s) * 1.0f);
+
+                // record samples
+                sample[sample_i] = (v - s) * 100.0f;
+                sample_i++;
+
+                if (sample_i == 64){
+                    // feed sample into fft
+                    
+                    // initialize input data for FFT
+                    int nfft = sizeof(sample) / sizeof(float); // nfft = 8
+
+                    // allocate input/output 1D arrays
+                    kiss_fft_cpx* cin = new kiss_fft_cpx[nfft];
+                    kiss_fft_cpx* cout = new kiss_fft_cpx[nfft];
+
+                    // initialize data storage
+                    memset(cin, 0, nfft * sizeof(kiss_fft_cpx));
+                    memset(cout, 0, nfft * sizeof(kiss_fft_cpx));
+
+                    // copy the input array to cin
+                    for (int i = 0; i < nfft; ++i)
+                    {
+                        cin[i].r = sample[i];
+                    }
+
+                    // setup the size and type of FFT: forward
+                    bool is_inverse_fft = false;
+                    kiss_fft_cfg cfg_f = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0); // typedef: struct kiss_fft_state*
+
+                    // execute transform for 1D
+                    kiss_fft(cfg_f, cin , cout);
+
+                    // transformed: DC is stored in cout[0].r and cout[0].i
+                    printf("\nForward Transform:\n");
+                    for (int i = 0; i < nfft; ++i)
+                    {
+                        printf("#%d  %f %fj\n", i, cout[i].r,  cout[i].i);
+                    }
+
+
+                    pico_rgb_keypad.illuminate(15, 255, cout[32].i * 255, 0);
+
+                    // release resources
+                    kiss_fft_free(cfg_f);
+                    delete[] cin;
+                    delete[] cout;
+
+                    // reset index
+                    sample_i = 0;
+                }
 
                 break;
             
@@ -135,38 +199,8 @@ int main (){
     return 0;
 }
 
-/*
-
-
-        //if (pico_rgb_keypad.get_button_states() & (0b1 << 0)){
-        //    pico_rgb_keypad.illuminate(0, 0, 255, 0);
-        //}
-
-        
-
-        /*
-        if (v > 4096/2){
-            pico_rgb_keypad.illuminate(1, 0, 255, 0);
-        } else {
-            pico_rgb_keypad.illuminate(1, 0, 0, 0);
-        }
-    // 12-bit conversion, assume max value == ADC_VREF == 3.3 V
-    // 1 << 12 = 4096 bitshift left <-- adc max https://circuitdigest.com/calculators/bit-shift-calculator 
-    const float conversion_factor = 3.3f / (1 << 12);*/
-
-//#include "pico/stdlib.h"
-//#include <string.h>
-//#include <math.h>
-
-// Pimoroni RGB keypad lib
-//#include "picolib/pico_rgb_keypad.cpp"
-//#include "picolib/pico_rgb_keypad.hpp"
-//using namespace pimoroni;
-//PicoRGBKeypad pico_rgb_keypad;
-//uint16_t current_buttons;
-
 // FFT
-//#include "kissfft/kiss_fft.h"
+//
 //#include "kissfft/kiss_fft.c" - thanks to CMake we don't need to import the C code anymore
 //#include <cstdlib>
 // https://www.fftw.org/
@@ -181,64 +215,9 @@ int main (){
   // The imaginary number is slightly more complex - see https://stackoverflow.com/questions/25624548/fft-real-imaginary-abs-parts-interpretation
   2:   2 * 44100 / 1024 =    86.1 Hz
   3:   3 * 44100 / 1024 =   129.2 Hz
-*/
+
 
 /*
-// Input
-int arr [64] = { };
-#include "hardware/gpio.h"
-//#include "hardware/adc.h"
-
-// animation
-int r [16] = { };
-int g [16] = { };
-int b [16] = { };
-
-void setintensity(int in){
-    // intensity graph
-                
-    // intensity : 1 
-    g[0] = 255;
-    
-    // intensity : 2
-    if (in > 0){
-        r[1] = 200;
-        r[4] = 200;
-    }
-
-    // intensity : 3
-    if (in > 1){
-        r[2] = 100;
-        r[5] = 100;
-        r[8] = 100;
-    }
-    
-    // intensity : 4
-    if (in > 2){
-        r[3] = 50;
-        r[6] = 50;
-        r[9] = 50;
-        r[12] = 50;
-    }
-
-    // intensity : 5
-    if (in > 3){
-        r[7] = 25;
-        r[10] = 25;
-        r[13] = 25;
-    }
-
-    // intensity : 6
-    if (in > 4){
-        r[11] = 15;
-        r[14] = 15;
-    }
-    
-    // intensity : 7
-    if (in > 5){
-        r[15] = 5;
-    }
-}
 
 int main() {
     //int arr [1024] = { 0 };
@@ -275,59 +254,7 @@ int main() {
     // FFT demo - ERROR : 
     int a = 0;
 
-    // initialize input data for FFT
-    float input[] = { 11.0f, 3.0f, 4.05f, 9.0f, 10.3f, 8.0f, 4.934f, 5.11f };
-    int nfft = sizeof(input) / sizeof(float); // nfft = 8
-
-    // allocate input/output 1D arrays
-    kiss_fft_cpx* cin = new kiss_fft_cpx[nfft];
-    kiss_fft_cpx* cout = new kiss_fft_cpx[nfft];
-
-    // initialize data storage
-    memset(cin, 0, nfft * sizeof(kiss_fft_cpx));
-    memset(cout, 0, nfft * sizeof(kiss_fft_cpx));
-
-    // copy the input array to cin
-    for (int i = 0; i < nfft; ++i)
-    {
-        cin[i].r = input[i];
-    }
-
-    // setup the size and type of FFT: forward
-    bool is_inverse_fft = false;
-    kiss_fft_cfg cfg_f = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0); // typedef: struct kiss_fft_state*
-
-    // execute transform for 1D
-    kiss_fft(cfg_f, cin , cout);
-
-    // transformed: DC is stored in cout[0].r and cout[0].i
-    printf("\nForward Transform:\n");
-    for (int i = 0; i < nfft; ++i)
-    {
-        printf("#%d  %f %fj\n", i, cout[i].r,  cout[i].i);
-    }
-
-    a = cout[rand() % nfft].r;
-
-    // setup the size and type of FFT: backward
-    is_inverse_fft = true;
-    kiss_fft_cfg cfg_i = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0);
-
-    // execute the inverse transform for 1D
-    kiss_fft(cfg_i, cout, cin);
-
-    // original input data
-    printf("\nInverse Transform:\n");
-    for (int i = 0; i < nfft; ++i)
-    {
-        printf("#%d  %f\n", i, cin[i].r / nfft); // div by N to scale data back to the original range
-    }
-
-    // release resources
-    kiss_fft_free(cfg_f);
-    kiss_fft_free(cfg_i);
-    delete[] cin;
-    delete[] cout;
+    
 
 	// Keypad
     pico_rgb_keypad.init(); // Set up GPIO
