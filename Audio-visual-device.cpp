@@ -5,43 +5,31 @@
 // include library
 #include "Audio-visual-device.hpp"
 
-/// @brief Display a bar graph on the keypad
-/// @param v input voltage (as percentage)
-/// @param r red
-/// @param g green
-/// @param b blue
-void bar(float v, int r = 0, int g = 0, int b = 0){
-    // def x and y
-    int x = 0;
-    int y = 3;
+/// @brief Displays a bar
+/// @param x position on x axis
+/// @param height height of bar - maximum 3
+/// @return last peak
+int bar(int x, int height){
+    int r = 0;
+    int g = 0;
+    int b = 0;
+    int peak = 0;
 
-    // loop through each button
-    for (int i = 0; i < 16; i++){
-        // if the input voltage is higher than a divisor
-        if (v > 0.0625f * i){
-            // illuminate the key
-            if (r == 0 && g == 0 && b == 0){
-                int rv = 0;
-                int gv = 0;
-                if (y == 0) { rv = 255; }
-                else if (y == 1) { rv = 255; gv = 255; }
-                else if (y == 2){ gv = 255; } 
-                else { gv = 255; }
-                pico_rgb_keypad.illuminate(x, y, rv, gv, 0);
-            } else {
-                pico_rgb_keypad.illuminate(x, y, r, g, 0);
-            }
+    for (int i = 0; i < height; i++){
+        if (i + 1 == height){
+            peak = x;
+
+            r = 255;
+            g = 0;
+        } else {
+            g = 255;
+            r = 0;
         }
 
-        // decrement y (start from bottom and go up)
-        y--;
-
-        // if at top then move to next column
-        if (y < 0){
-            x++;
-            y = 3;
-        }
+        pico_rgb_keypad.illuminate(x, 3 - i, r, g, b);
     }
+
+    return peak;
 }
 
 /// @brief Main function
@@ -60,6 +48,10 @@ int main (){
     while (true){ 
         // read voltage as percentage
         float v = adc_read() / 4096.0f; // 4096 == 1 << 12
+
+        // fade
+        int t [4] = { 255 };
+        int peak [4] = { 0 };
 
         switch (calibrate_stage){
             case 0:
@@ -125,15 +117,12 @@ int main (){
                 break;
 
             case 2:
-                // show bar
-                pico_rgb_keypad.clear();
-                //bar((v - s) * 1.0f);
-
                 // record samples
-                sample[sample_i] = (v - s) * 255;
+                sample[sample_i] = (v - s) * 4096;
                 sample_i++;
 
                 if (sample_i == 64){
+                    pico_rgb_keypad.clear();
                     // feed sample into fft
                     
                     // initialize input data for FFT
@@ -162,19 +151,25 @@ int main (){
 
                     // transformed: DC is stored in cout[0].r and cout[0].i
 
-                    for (int i = 0; i < 16; i++){
+                    for (int i = 0; i < 4; i++){
                         int mean = 0;
-                        int size = nfft / 16;
+                        int size = nfft / 4;
 
                         for (int j = 0; j < size; j++){
                             mean += cout[(size * i) + j].i;
                         }
 
                         mean = mean / size;
-                        
-                        if (mean > 100){ // temp
-                            pico_rgb_keypad.illuminate(i, 0, mean, 0);
-                        }
+                        int height = (0.25f + round((mean / 4096))) * 4;
+
+                        // define peak
+                        /*if (t[i] <= 0){
+                            t[i] = 255;
+                            pico_rgb_keypad.illuminate(peak[i], 0, 0, 0);
+                            
+                        }*/
+
+                        peak[i] = bar(i, height);
                     }
 
                     // release resources
@@ -185,6 +180,12 @@ int main (){
                     // reset index
                     sample_i = 0;
                 }
+
+                // fade peak
+                /*for (int i = 0; i < 4; i++){
+                    t[i]--;
+                    if (t[i] > 0) { pico_rgb_keypad.illuminate(peak[i], t[i], t[i], t[i]); }
+                }*/
 
                 break;
             

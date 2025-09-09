@@ -355,7 +355,7 @@
 				{
 					"backtrace" : 5,
 					"isSystem" : true,
-					"path" : "C:/Users/mydre/Documents/Audio-visual-device/build/generated/pico_base"
+					"path" : "C:/Users/mydre/Documents/Programming/Audio-visual-device/build/generated/pico_base"
 				},
 				{
 					"backtrace" : 5,
@@ -883,7 +883,7 @@
 				{
 					"backtrace" : 5,
 					"isSystem" : true,
-					"path" : "C:/Users/mydre/Documents/Audio-visual-device/build/generated/pico_base"
+					"path" : "C:/Users/mydre/Documents/Programming/Audio-visual-device/build/generated/pico_base"
 				},
 				{
 					"backtrace" : 5,
@@ -1457,7 +1457,7 @@
 				{
 					"backtrace" : 5,
 					"isSystem" : true,
-					"path" : "C:/Users/mydre/Documents/Audio-visual-device/build/generated/pico_base"
+					"path" : "C:/Users/mydre/Documents/Programming/Audio-visual-device/build/generated/pico_base"
 				},
 				{
 					"backtrace" : 5,
@@ -1754,7 +1754,7 @@
 			},
 			{
 				"backtrace" : 4,
-				"fragment" : "-Wl,-Map=C:/Users/mydre/Documents/Audio-visual-device/build/blink.elf.map",
+				"fragment" : "-Wl,-Map=C:/Users/mydre/Documents/Programming/Audio-visual-device/build/blink.elf.map",
 				"role" : "flags"
 			},
 			{
@@ -2514,7 +2514,7 @@
 			},
 			{
 				"backtrace" : 5,
-				"fragment" : "-Wl,-LC:/Users/mydre/Documents/Audio-visual-device/build",
+				"fragment" : "-Wl,-LC:/Users/mydre/Documents/Programming/Audio-visual-device/build",
 				"role" : "flags"
 			},
 			{

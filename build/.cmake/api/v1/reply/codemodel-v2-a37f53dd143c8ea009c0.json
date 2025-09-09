@@ -1351,14 +1351,14 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "blink::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-blink-Debug-00174f1a65231888284a.json",
+					"jsonFile" : "target-blink-Debug-872b2efa939403de40ae.json",
 					"name" : "blink",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 20,
 					"id" : "bs2_default::@efaae0dfea37ab6992ce",
-					"jsonFile" : "target-bs2_default-Debug-2fd040feaafc6bc7ac3a.json",
+					"jsonFile" : "target-bs2_default-Debug-eeea45fa06dea96665b9.json",
 					"name" : "bs2_default",
 					"projectIndex" : 1
 				},
@@ -1396,8 +1396,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/mydre/Documents/Audio-visual-device/build",
-		"source" : "C:/Users/mydre/Documents/Audio-visual-device"
+		"build" : "C:/Users/mydre/Documents/Programming/Audio-visual-device/build",
+		"source" : "C:/Users/mydre/Documents/Programming/Audio-visual-device"
 	},
 	"version" : 
 	{
