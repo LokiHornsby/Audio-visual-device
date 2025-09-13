@@ -2,21 +2,8 @@
 #include "pico/stdlib.h"
 #include <stdio.h>
 
-// https://howtomechatronics.com/tutorials/arduino/how-to-control-ws2812b-individually-addressable-leds-using-arduino/
-// https://www.amazon.co.uk/dp/B088K1KDW5?ref_=pe_151259311_1319653061_t_fed_asin_title&th=1
-// https://medium.com/engineering-iot/building-a-ws2812-library-from-scratch-in-c-920af4a7d5bf
-// https://forums.raspberrypi.com/viewtopic.php?t=293582
-// https://www.raspberrypi.com/documentation/pico-sdk/hardware.html
-
-// USE SPI - PWM Faults
-// WS2812B 
-// https://hyperion-project.org/forum/index.php?thread/12976-new-ws2812b-led-strip-does-not-light-up-at-all/
-// GPIO 22 = 29, GND = 28
-// https://pico.pinout.xyz/
-
 // include library
 #include "Audio-visual-device.hpp"
-#include <hardware/spi.h>
 
 /// @brief Displays a bar
 /// @param x position on x axis
@@ -45,22 +32,6 @@ int bar(int x, int height){
     return peak;
 }
 
-void timeLED(int z){
-    switch (z){
-        case 0:
-            gpio_put(22, 1);
-            sleep_ms(0.0008);
-            gpio_put(22, 0);
-            sleep_ms(0.00045);
-            break;
-        case 1:
-            gpio_put(22, 1);
-            sleep_ms(0.0004);
-            gpio_put(22, 0);
-            sleep_ms(0.00085);
-            break;
-    }
-}
 
 struct led_item {
     uint8_t red;
@@ -71,64 +42,10 @@ struct led_item {
 /// @brief Main function
 /// @return 
 int main (){
-    // 
-    /*uint8_t data [24] = { 0b110, 0b110, 0b110, 0b110,
-                          0b110, 0b110, 0b110, 0b110,
-                          0b110, 0b110, 0b110, 0b110,
-                          0b110, 0b110, 0b110, 0b110,
-                          0b110, 0b110, 0b110, 0b110,
-                          0b110, 0b110, 0b110, 0b110
-                        };
-    spi_init(spi1, 800000);
-    spi_set_format(spi1, 8, SPI_CPOL_0, SPI_CPHA_1, SPI_MSB_FIRST);
-    spi_write_blocking(spi1, data, 24);
-    while (true){
-        
-    }*/
+    WS2812B_init();
 
-    // 29 GPIO, 28 GND
-    gpio_init(22);
-    gpio_set_dir(22, true);
-    //gpio_put(22, false);
-    //sleep_ms(10);
-
-    // flash all to 0
-    /*for (int i = 0; i < 256; i++){
-        for (int i = 0; i < 24; i++){
-            timeLED(0);
-        }
-    }*/
-
-    // 1001 0110 0000 0000 0000 0000 = medium brightness green
-    timeLED(1);
-    timeLED(0);
-    timeLED(0);
-    timeLED(1);
-
-    timeLED(0);
-    timeLED(1);
-    timeLED(1);
-    timeLED(0);
-
-    timeLED(0);
-    timeLED(0);
-    timeLED(0);
-    timeLED(0);
-
-    timeLED(1);
-    timeLED(1);
-    timeLED(1);
-    timeLED(1);
-
-    timeLED(0);
-    timeLED(0);
-    timeLED(0);
-    timeLED(0);
-
-    timeLED(0);
-    timeLED(0);
-    timeLED(0);
-    timeLED(0);
+    // change color
+    //WS2812B_setpixel(5, 255, 0, 0);
 
     // initialise pico rgb keypad
     pico_rgb_keypad.init();

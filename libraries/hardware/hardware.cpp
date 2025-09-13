@@ -6,8 +6,9 @@
 #include "hardware/i2c.h"
 #include "hardware/spi.h"
 
-#include "pico_rgb_keypad.hpp"
+#include "hardware.hpp"
 #include <cstdint>
+#include <bitset>
 
 // pins
 enum pin {
@@ -17,6 +18,125 @@ enum pin {
   SCK       = 18,
   MOSI      = 19
 };
+
+int DATAGPIO = 22;
+
+// https://www.arrow.com/en/research-and-events/articles/protocol-for-the-ws2812b-programmable-led
+// https://tomverbeure.github.io/2019/10/13/WS2812B_Reset_Old_and_New.html
+void WS2812B_sendtiming(int z){
+  switch (z){
+        case 0:
+            gpio_put(DATAGPIO, 1);
+            sleep_us(0.38);
+            gpio_put(DATAGPIO, 0);
+            sleep_us(1);
+            break;
+        case 1:
+            gpio_put(DATAGPIO, 1);
+            sleep_us(1);
+            gpio_put(DATAGPIO, 0);
+            sleep_us(0.42);
+            break;
+    }
+}
+
+void WS2812B_reset(){
+    gpio_put(DATAGPIO, 0);
+    sleep_us(300);
+}
+
+void WS2812B_init(){
+    // init
+    gpio_init(DATAGPIO);
+    gpio_set_dir(DATAGPIO, true);
+
+    // reset all LEDs
+    for (int i = 0; i < 256 * 3; i++){
+        WS2812B_sendtiming(0);
+        WS2812B_sendtiming(0);
+        WS2812B_sendtiming(0);
+        WS2812B_sendtiming(0);
+        WS2812B_sendtiming(0);
+        WS2812B_sendtiming(0);
+        WS2812B_sendtiming(0);
+        WS2812B_sendtiming(1); 
+    }
+
+    // reset to start
+    gpio_put(DATAGPIO, 0);
+    sleep_us(300);
+
+    sleep_ms(1000);
+
+    ////////////////////// led
+    
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(1);
+
+    WS2812B_sendtiming(1);
+    WS2812B_sendtiming(1);
+    WS2812B_sendtiming(1);
+    WS2812B_sendtiming(1);
+    WS2812B_sendtiming(1);
+    WS2812B_sendtiming(1);
+    WS2812B_sendtiming(1);
+    WS2812B_sendtiming(1);
+
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(0);
+    WS2812B_sendtiming(1);
+}
+
+void WS2812B_setpixel(int i, uint8_t r, uint8_t g, uint8_t b){
+    // skip to index
+    for (size_t x = 0; x < i - 1; x++){
+      for (int y = 0; y < 3; y++){
+        for (int j = 0; j < 8; j++){
+          WS2812B_sendtiming(0);
+        }
+
+        sleep_ms(50);
+      }
+    }
+    
+
+    // red
+    for (int j = 0; j < i - 1; j++){
+      WS2812B_sendtiming((r >> (j-1)) & 1);
+    }
+
+    sleep_ms(50);
+
+    // green
+    for (int j = 0; j < i - 1; j++){
+      WS2812B_sendtiming((g >> (j-1)) & 1);
+    }
+    
+    sleep_ms(50);
+
+    // blue
+    for (int j = 0; j < i - 1; j++){
+      WS2812B_sendtiming((b >> (j-1)) & 1);
+    }
+  
+    sleep_ms(50);
+    
+    // reset
+    sleep_ms(500);
+    gpio_put(DATAGPIO, 0);
+    sleep_ms(500);
+}
 
 namespace pimoroni {
 

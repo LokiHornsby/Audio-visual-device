@@ -1,7 +1,9 @@
 #pragma once
 
+// hardware
+#include "libraries/hardware/hardware.hpp"
+
 // keypad
-#include "picolib/pico_rgb_keypad.hpp"
 using namespace pimoroni;
 PicoRGBKeypad pico_rgb_keypad;
 
@@ -17,7 +19,7 @@ int s_fi;
 int s_captures;
 
 // FFT
-#include "kissfft/kiss_fft.h"
+#include "libraries/kissfft/kiss_fft.h"
 
 //// record sample
 int sample [64] = { 0 };

@@ -1,5 +1,9 @@
 #pragma once
 
+// WS2812B
+void WS2812B_init();
+void WS2812B_setpixel(int i, uint8_t r, uint8_t g, uint8_t b);
+
 namespace pimoroni {
 
   class PicoRGBKeypad {

@@ -37,8 +37,8 @@ pico_sdk_init()
 # link files
 add_executable(blink
     Audio-visual-device.cpp
-    picolib/pico_rgb_keypad.cpp
-    kissfft/kiss_fft.c
+    libraries/hardware/hardware.cpp
+    libraries/kissfft/kiss_fft.c
 )
 
 # pull in dependencies
