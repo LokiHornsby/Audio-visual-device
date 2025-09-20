@@ -7,6 +7,10 @@
 using namespace pimoroni;
 PicoRGBKeypad pico_rgb_keypad;
 
+// max7219
+using namespace digishuo;
+max7219 max;
+
 // microphone
 #include "hardware/adc.h"
 int calibrate_stage = 0;

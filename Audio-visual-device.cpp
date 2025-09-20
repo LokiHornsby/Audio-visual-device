@@ -4,6 +4,7 @@
 
 // include library
 #include "Audio-visual-device.hpp"
+#include "hardware/spi.h"
 
 /// @brief Displays a bar
 /// @param x position on x axis
@@ -39,16 +40,41 @@ struct led_item {
     uint8_t blue;
 } RGB;
 
+// https://forum.arduino.cc/t/max7219-and-8x8led-matrix-all-leds-are-constantly-on/123887/2
+// https://www.analog.com/media/en/technical-documentation/data-sheets/max7219-max7221.pdf
+// https://www.dropbox.com/scl/fi/priug31ipifdky06i5uw9/libraries.rar?dl=0&e=1&file_subpath=%2FMD_MAX72XX%2Fsrc%2FMD_MAX72xx.cpp&rlkey=mebs7nk8my03sc72g9kvqzgg3
+// https://youngkin.github.io/post/spidotmatrixmodule/#controlling-the-max7219---main-program
+
 /// @brief Main function
 /// @return 
 int main (){
-    WS2812B_init();
+    max.init();
+    /*const uint16_t test = 0b0000111100000000;
+    max.write(&test);
 
-    // change color
-    //WS2812B_setpixel(5, 255, 0, 0);
+    const uint16_t shutdown = 0b0000110000000001;
+    max.write(&shutdown);
 
-    // initialise pico rgb keypad
-    pico_rgb_keypad.init();
+    const uint16_t decode = 0b0000100100000000;
+    max.write(&decode);
+
+    const uint16_t scan = 0b0000101100000000;
+    max.write(&scan);
+
+    const uint16_t num = 0b0000100100000100;
+    max.write(&num);*/
+
+    //const uint16_t num = 0b0000111100000001;
+    //max.write(&num);
+
+    //sleep_ms(1000);
+
+    /*const uint16_t num2 = 0b0000111100000000;
+    max.write(&num2);*/
+
+    max.write_register_all(15, 1);
+    sleep_ms(1000);
+    max.write_register_all(15, 0);
 
     // initialise ADC
     adc_init();
