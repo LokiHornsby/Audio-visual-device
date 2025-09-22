@@ -34,47 +34,65 @@ int bar(int x, int height){
 }
 
 
-struct led_item {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-} RGB;
-
-// https://forum.arduino.cc/t/max7219-and-8x8led-matrix-all-leds-are-constantly-on/123887/2
-// https://www.analog.com/media/en/technical-documentation/data-sheets/max7219-max7221.pdf
-// https://www.dropbox.com/scl/fi/priug31ipifdky06i5uw9/libraries.rar?dl=0&e=1&file_subpath=%2FMD_MAX72XX%2Fsrc%2FMD_MAX72xx.cpp&rlkey=mebs7nk8my03sc72g9kvqzgg3
-// https://youngkin.github.io/post/spidotmatrixmodule/#controlling-the-max7219---main-program
-
 /// @brief Main function
 /// @return 
 int main (){
-    max.init();
-    /*const uint16_t test = 0b0000111100000000;
-    max.write(&test);
+    // test
+    for (int display = 0; display < max.DISPLAYS; display++){
+        max.write(0x0F, 0); 
+    }
+    
+    max.update();
 
-    const uint16_t shutdown = 0b0000110000000001;
-    max.write(&shutdown);
+    // shutdown mode
+    for (int display = 0; display < max.DISPLAYS; display++){
+        if (display == 0) {
+            max.write(12, 1); 
+        } else {
+            max.write(12, 1);
+        }
+    }
 
-    const uint16_t decode = 0b0000100100000000;
-    max.write(&decode);
+    max.update();
 
-    const uint16_t scan = 0b0000101100000000;
-    max.write(&scan);
+    // intensity
+    for (int display = 0; display < max.DISPLAYS; display++){
+        max.write(10, 10);
+        max.update();
+    }
 
-    const uint16_t num = 0b0000100100000100;
-    max.write(&num);*/
+    max.update();
 
-    //const uint16_t num = 0b0000111100000001;
-    //max.write(&num);
+    // scan limit
+    for (int display = 0; display < max.DISPLAYS; display++){
+        max.write(0x0B, 7);
+    }
 
-    //sleep_ms(1000);
+    max.update();
+    
+    // clear all LEDS
+    for (int x = 0; x < 8; x++){
+        max.write(x+1, 0b00000000);
+        max.write(x+1, 0b00000000);
+        max.write(x+1, 0b00000000);
+        max.write(x+1, 0b00000000);
+        max.update();
+    }
 
-    /*const uint16_t num2 = 0b0000111100000000;
-    max.write(&num2);*/
-
-    max.write_register_all(15, 1);
-    sleep_ms(1000);
-    max.write_register_all(15, 0);
+    for (int x = 0; x < 8; x++){
+        max.write(0x00, 0b00000000); // NOOP
+        max.write(0x00, 0b00000000); // NOOP
+        max.write(0x00, 0b00000000); // NOOP
+        if (x == 0) { max.write(x+1, 0b11111111); } else { max.write(0x00, 0b00000000); }
+        max.update();
+    }
+    
+    // write to 4th display
+    /*max.write(0x00, 0b00000000); // line 1, display 1 (NO-OP)
+    max.write(0x00, 0b00000000); // line 1, display 2 (NO-OP)
+    max.write(0x00, 0b00000000); // line 1, display 3 (NO-OP)
+    max.write(1, 0b00000000); // line 1, display 4
+    max.update();*/
 
     // initialise ADC
     adc_init();
