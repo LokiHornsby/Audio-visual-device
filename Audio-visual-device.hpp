@@ -15,9 +15,9 @@ max7219 max = max7219();
 #include "hardware/adc.h"
 int calibrate_stage = 0;
 
-// OUT - GPIO26
-// VDD - VREF
-// GND - GND
+// OUT - GP26_AO
+// VDD - ADC_VREF
+// GND - AGND
 
 //// Calculate silence
 float s = 0.0;

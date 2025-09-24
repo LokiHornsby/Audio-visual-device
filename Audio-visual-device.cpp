@@ -1,10 +1,9 @@
 #include <math.h>
 #include "pico/stdlib.h"
 #include <stdio.h>
-
-// include library
 #include "Audio-visual-device.hpp"
 #include "hardware/spi.h"
+#include <bits/stdc++.h>
 
 /// @brief Displays a bar
 /// @param x position on x axis
@@ -33,33 +32,27 @@ int bar(int x, int height){
     return peak;
 }
 
-uint8_t addbinary(uint8_t a, uint8_t b){
-    uint8_t arr [8] = { };
-    int carry = 0;
+//std::bitset<8>{0b10010000}, 
+//std::bitset<8>{0b01010000}
+////             0b11011000
+int addbinary(std::bitset<8> a, std::bitset<8> b){
+    int c = 0;
 
     for (int i = 0; i < 8; i++){
-        int bin1 = a & i; // check index 
-        int bin2 = b & i; // check index 
+        int ab = (int)a.test(7 - i) + (int)b.test(7 - i); // LMB first
+        
+        if (ab > 1){
+            c++;
+        } 
 
-        if (carry > 0) { 
-            if (bin1 == 0 || bin2 == 0){
-                arr[i] = 1;
-                carry -= 1;
-            }
-        } else {
-            arr[i] = bin1 + bin2;
+        a.set(7 - i, ab + c > 0);
+
+        if (ab == 0 && c > 0){
+            c--;
         }
-
-        if (arr[i] > 1) { carry += 1; arr[i] = 1; }
     }
 
-    uint8_t result;
-
-    for(int i = 0; i < 8; ++i) {
-        result |= (arr[i] << i);
-    }
-
-    return result;
+    return static_cast<int>(a.to_ulong());
 }
 
 /// @brief Main function
@@ -267,15 +260,17 @@ int main (){
                     // display height
                     for (int x = 0; x < 8; x++){
                         // display fft
-                        max.write(x+1, addbinary(0b01010101, 0b00000000));
+                        max.write(x+1, addbinary(
+                        std::bitset<8>{0b10010000}, 
+                        std::bitset<8>{0b01010000}
+                        //             0b11011000
+                        ));
                         
                         // display fft r
-                        max.write(x+1, addbinary(0b01010101, 0b10000000));
+                        max.write(x+1, 0b00000000);
 
                         // display fft i
-                        max.write(x+1, addbinary(0b01010101, 0b11000000));
-
-                        // doesn't work
+                        max.write(x+1, 0b00000000);
 
                         // display adc voltage
                         if (v > (1.0f / 8.0f) * (x + 1)) { max.write(x+1, 0b11111111); } else { max.write(0x00, 0b00000000); }
