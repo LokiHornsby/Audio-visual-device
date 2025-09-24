@@ -33,6 +33,34 @@ int bar(int x, int height){
     return peak;
 }
 
+uint8_t addbinary(uint8_t a, uint8_t b){
+    uint8_t arr [8] = { };
+    int carry = 0;
+
+    for (int i = 0; i < 8; i++){
+        int bin1 = a & i; // check index 
+        int bin2 = b & i; // check index 
+
+        if (carry > 0) { 
+            if (bin1 == 0 || bin2 == 0){
+                arr[i] = 1;
+                carry -= 1;
+            }
+        } else {
+            arr[i] = bin1 + bin2;
+        }
+
+        if (arr[i] > 1) { carry += 1; arr[i] = 1; }
+    }
+
+    uint8_t result;
+
+    for(int i = 0; i < 8; ++i) {
+        result |= (arr[i] << i);
+    }
+
+    return result;
+}
 
 /// @brief Main function
 /// @return 
@@ -70,22 +98,7 @@ int main (){
 
     max.update();
     
-    // clear all LEDS
-    for (int x = 0; x < 8; x++){
-        max.write(x+1, 0b00000000);
-        max.write(x+1, 0b00000000);
-        max.write(x+1, 0b00000000);
-        max.write(x+1, 0b00000000);
-        max.update();
-    }
-
-    for (int x = 0; x < 8; x++){
-        max.write(0x00, 0b00000000); // NOOP
-        max.write(0x00, 0b00000000); // NOOP
-        max.write(0x00, 0b00000000); // NOOP
-        if (x == 0) { max.write(x+1, 0b11111111); } else { max.write(0x00, 0b00000000); }
-        max.update();
-    }
+    
     
     // write to 4th display
     /*max.write(0x00, 0b00000000); // line 1, display 1 (NO-OP)
@@ -101,6 +114,8 @@ int main (){
     // Select ADC input 0 (GPIO26)
     adc_select_input(0);
 
+    calibrate_stage = 2;
+
     while (true){ 
         // read voltage as percentage
         float v = adc_read() / 4096.0f; // 4096 == 1 << 12
@@ -108,6 +123,9 @@ int main (){
         // fade
         int t [4] = { 255 };
         int peak [4] = { 0 };
+
+        // binary
+        uint8_t b;
 
         switch (calibrate_stage){
             case 0:
@@ -177,7 +195,7 @@ int main (){
                 sample[sample_i] = (v - s) * 4096;
                 sample_i++;
 
-                if (sample_i == 64){
+                if (sample_i == 8){
                     pico_rgb_keypad.clear();
                     // feed sample into fft
                     
@@ -205,11 +223,19 @@ int main (){
                     // execute transform for 1D
                     kiss_fft(cfg_f, cin , cout);
 
+                    // find max
+                    int m;
+                    for (int i = 0; i < nfft; i++){
+                        if (cout[i].i > m) { m = cout[i].i; }
+                    }
+                    
+
                     // transformed: DC is stored in cout[0].r and cout[0].i
 
-                    for (int i = 0; i < 4; i++){
+                    // calculate mean values for fft
+                    /*for (int i = 0; i < 8; i++){
                         int mean = 0;
-                        int size = nfft / 4;
+                        int size = nfft / 8;
 
                         for (int j = 0; j < size; j++){
                             mean += cout[(size * i) + j].i;
@@ -225,7 +251,35 @@ int main (){
                             
                         }*/
 
-                        peak[i] = bar(i, height);
+
+                        //peak[i] = bar(i, height);*/
+                    //}
+
+                    // clear all LEDS
+                    for (int x = 0; x < 8; x++){
+                        max.write(x+1, 0b00000000);
+                        max.write(x+1, 0b00000000);
+                        max.write(x+1, 0b00000000);
+                        max.write(x+1, 0b00000000);
+                        max.update();
+                    }
+
+                    // display height
+                    for (int x = 0; x < 8; x++){
+                        // display fft
+                        max.write(x+1, addbinary(0b01010101, 0b00000000));
+                        
+                        // display fft r
+                        max.write(x+1, addbinary(0b01010101, 0b10000000));
+
+                        // display fft i
+                        max.write(x+1, addbinary(0b01010101, 0b11000000));
+
+                        // doesn't work
+
+                        // display adc voltage
+                        if (v > (1.0f / 8.0f) * (x + 1)) { max.write(x+1, 0b11111111); } else { max.write(0x00, 0b00000000); }
+                        max.update();
                     }
 
                     // release resources
