@@ -30,5 +30,5 @@ int s_captures;
 #include "libraries/kissfft/kiss_fft.h"
 
 //// record sample
-int sample [8] = { 0 };
+int sample [64] = { 0 };
 int sample_i;

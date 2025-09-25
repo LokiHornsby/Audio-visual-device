@@ -35,7 +35,7 @@ int bar(int x, int height){
 //std::bitset<8>{0b10010000}, 
 //std::bitset<8>{0b01010000}
 ////             0b11011000
-int addbinary(std::bitset<8> a, std::bitset<8> b){
+std::bitset<8> addbinary(std::bitset<8> a, std::bitset<8> b){
     int c = 0;
 
     for (int i = 0; i < 8; i++){
@@ -52,6 +52,10 @@ int addbinary(std::bitset<8> a, std::bitset<8> b){
         }
     }
 
+    return a;
+}
+
+int binarytoint(std::bitset<8> a){
     return static_cast<int>(a.to_ulong());
 }
 
@@ -188,7 +192,7 @@ int main (){
                 sample[sample_i] = (v - s) * 4096;
                 sample_i++;
 
-                if (sample_i == 8){
+                if (sample_i == 64){
                     pico_rgb_keypad.clear();
                     // feed sample into fft
                     
@@ -221,32 +225,6 @@ int main (){
                     for (int i = 0; i < nfft; i++){
                         if (cout[i].i > m) { m = cout[i].i; }
                     }
-                    
-
-                    // transformed: DC is stored in cout[0].r and cout[0].i
-
-                    // calculate mean values for fft
-                    /*for (int i = 0; i < 8; i++){
-                        int mean = 0;
-                        int size = nfft / 8;
-
-                        for (int j = 0; j < size; j++){
-                            mean += cout[(size * i) + j].i;
-                        }
-
-                        mean = mean / size;
-                        int height = (0.25f + round((mean / 4096))) * 4;
-
-                        // define peak
-                        /*if (t[i] <= 0){
-                            t[i] = 255;
-                            pico_rgb_keypad.illuminate(peak[i], 0, 0, 0);
-                            
-                        }*/
-
-
-                        //peak[i] = bar(i, height);*/
-                    //}
 
                     // clear all LEDS
                     for (int x = 0; x < 8; x++){
@@ -257,23 +235,23 @@ int main (){
                         max.update();
                     }
 
-                    // display height
+
                     for (int x = 0; x < 8; x++){
-                        // display fft
-                        max.write(x+1, addbinary(
-                        std::bitset<8>{0b10010000}, 
-                        std::bitset<8>{0b01010000}
-                        //             0b11011000
-                        ));
-                        
-                        // display fft r
-                        max.write(x+1, 0b00000000);
+                        for (int j = 0; j < 4; j++){
+                            // display fft
+                            std::bitset<8> b { 0b00000000 };
 
-                        // display fft i
-                        max.write(x+1, 0b00000000);
+                            for (int y = 0; y < 8; y++){
+                                b.set(7 - y, cout[(y + (j * 8))].i > (4096 / 8) * x);
+                            }
+                            
+                            max.write(x+1, binarytoint(b));
 
+                            b.reset();
+                        }
+            
                         // display adc voltage
-                        if (v > (1.0f / 8.0f) * (x + 1)) { max.write(x+1, 0b11111111); } else { max.write(0x00, 0b00000000); }
+                        //if (v > (1.0f / 8.0f) * (x + 1)) { max.write(x+1, 0b11111111); } else { max.write(0x00, 0b00000000); }
                         max.update();
                     }
 
