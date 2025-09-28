@@ -2,29 +2,16 @@
 #include <math.h>
 #include <stdint.h>
 
+#include "hardware.hpp"
+
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "hardware/spi.h"
-
-#include "hardware.hpp"
-#include <cstdint>
-#include <bitset>
+#include "hardware/adc.h"
 
 namespace digishuo {
-    // VCC - VBUS
-    // GND - GND
-    // DIN - GP11
-    // CS - GP13
-    // CLK - GP10
-    enum pin {
-        CLK = 10,
-        DIN = 11,
-        CS = 13
-    };
-
-    max7219::max7219(){
-        stdio_init_all();
-
+    void max7219::init(){
+        // general init
         spi_init(spi1, 10 * 1000 * 1000);
 
         gpio_set_function(pin::CLK, GPIO_FUNC_SPI);
@@ -34,7 +21,51 @@ namespace digishuo {
         gpio_set_dir(pin::CS, GPIO_OUT);
         gpio_put(pin::CS, 1);
 
-        sleep_ms(10);
+        // test
+        for (int d = 0; d < DISPLAYS; d++){
+          write(0x0F, 1); 
+        }
+        
+        update();
+
+        sleep_ms(1000);
+
+        for (int d = 0; d < DISPLAYS; d++){
+          write(0x0F, 0); 
+        }
+        
+        update();
+
+        sleep_ms(1000);
+
+        // shutdown mode
+        for (int d = 0; d < DISPLAYS; d++){
+          write(0x0C, 0b00000001);
+        }
+
+        update();
+
+        sleep_ms(1000);
+
+        // intensity
+        for (int d = 0; d < DISPLAYS; d++){
+          write(0X0A, 0b00000001);
+        }
+
+        update();
+
+        sleep_ms(1000);
+
+        // scan limit
+        for (int d = 0; d < DISPLAYS; d++){
+          write(0x0B, 7);
+        }
+
+        update();
+
+        sleep_ms(1000);
+
+        clear();
     }
 
     void max7219::write(uint8_t reg, uint8_t data) {
@@ -49,20 +80,40 @@ namespace digishuo {
         gpio_put(pin::CS, 0);
         gpio_put(pin::CS, 1);
     }
+
+    void max7219::clear(){
+        for (int x = 0; x < 8; x++){ // rows
+            for (int y = 0; y < DISPLAYS; y++){ // displays
+              write(x+1, 0b00000000); // columns
+            }
+		
+            update();
+        }
+    }
+}
+
+namespace adafruit {
+	void MAX981::init(){
+		// initialise ADC
+		adc_init();
+		// Make sure GPIO is high-impedance, no pullups etc
+		adc_gpio_init(26);
+		// Select ADC input 0 (GPIO26)
+		adc_select_input(0);
+	}
+
+	float MAX981::getVoltage(){
+		return adc_read();
+	}
+
+	float MAX981::getPeak(){
+		return 4096.0f;
+	}
 }
 
 namespace pimoroni {
-    // pins
-    enum pin {
-        SDA       =  4,
-        SCL       =  5,
-        CS        = 17,
-        SCK       = 18,
-        MOSI      = 19
-    };
-
     // constructor
-    PicoRGBKeypad::PicoRGBKeypad() {
+    void PicoRGBKeypad::init() {
         memset(buffer, 0, sizeof(buffer));
         led_data = buffer + 4;
 

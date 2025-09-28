@@ -5,56 +5,6 @@
 #include "hardware/spi.h"
 #include <bits/stdc++.h>
 
-/// @brief Displays a bar
-/// @param x position on x axis
-/// @param height height of bar - maximum 3
-/// @return last peak
-int bar(int x, int height){
-    int r = 0;
-    int g = 0;
-    int b = 0;
-    int peak = 0;
-
-    for (int i = 0; i < height; i++){
-        if (i + 1 == height){
-            peak = x;
-
-            r = 255;
-            g = 0;
-        } else {
-            g = 255;
-            r = 0;
-        }
-
-        pico_rgb_keypad.illuminate(x, 3 - i, r, g, b);
-    }
-
-    return peak;
-}
-
-//std::bitset<8>{0b10010000}, 
-//std::bitset<8>{0b01010000}
-////             0b11011000
-std::bitset<8> addbinary(std::bitset<8> a, std::bitset<8> b){
-    int c = 0;
-
-    for (int i = 0; i < 8; i++){
-        int ab = (int)a.test(7 - i) + (int)b.test(7 - i); // LMB first
-        
-        if (ab > 1){
-            c++;
-        } 
-
-        a.set(7 - i, ab + c > 0);
-
-        if (ab == 0 && c > 0){
-            c--;
-        }
-    }
-
-    return a;
-}
-
 int binarytoint(std::bitset<8> a){
     return static_cast<int>(a.to_ulong());
 }
@@ -62,60 +12,169 @@ int binarytoint(std::bitset<8> a){
 /// @brief Main function
 /// @return 
 int main (){
-    // test
-    for (int display = 0; display < max.DISPLAYS; display++){
-        max.write(0x0F, 0); 
-    }
-    
-    max.update();
+    // initialise
+    stdio_init_all();
+    keypad.init();
+    microphone.init();
+    display.init();
 
-    // shutdown mode
-    for (int display = 0; display < max.DISPLAYS; display++){
-        if (display == 0) {
-            max.write(12, 1); 
-        } else {
-            max.write(12, 1);
+    // stage
+    int stage = 0;
+
+    // index
+    int ind;
+
+    // selected
+    int sel;
+
+    while (true){
+        // button index
+        ind++;
+
+        if (ind > 15){
+            stage = sel;
+            ind = 0;
+        }
+
+        // pressed button
+        if (keypad.get_button_states() & (0b1 << ind)) { sel = ind; }
+
+        // colors
+        keypad.illuminate(ind, 255, 255, 255); 
+        keypad.illuminate(stage, 0, 255, 0);
+        keypad.update();
+
+        // input
+        float v = microphone.getVoltage();
+
+        // column
+        std::bitset<8> b { 0b00000000 };
+
+        switch (stage) {
+            // FFT
+            case 0:
+                // record samples
+                sample[sample_i] = v;
+                sample_i++;
+
+                if (sample_i == 64){
+                    // feed sample into fft
+                    
+                    // initialize input data for FFT
+                    int nfft = sizeof(sample) / sizeof(float); // nfft = 8
+
+                    // allocate input/output 1D arrays
+                    kiss_fft_cpx* cin = new kiss_fft_cpx[nfft];
+                    kiss_fft_cpx* cout = new kiss_fft_cpx[nfft];
+
+                    // initialize data storage
+                    memset(cin, 0, nfft * sizeof(kiss_fft_cpx));
+                    memset(cout, 0, nfft * sizeof(kiss_fft_cpx));
+
+                    // copy the input array to cin
+                    for (int i = 0; i < nfft; ++i)
+                    {
+                        cin[i].r = sample[i];
+                    }
+
+                    // setup the size and type of FFT: forward
+                    bool is_inverse_fft = false;
+                    kiss_fft_cfg cfg_f = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0); // typedef: struct kiss_fft_state*
+
+                    // execute transform for 1D
+                    kiss_fft(cfg_f, cin , cout);
+
+                    // find max
+                    int m;
+                    for (int i = 0; i < nfft; i++){
+                        if (cout[i].i > m) { m = cout[i].i; }
+                    }
+
+                    // clear all LEDS
+                    display.clear();
+
+                    // display FFT
+                    for (int x = 0; x < 8; x++){
+                        for (int j = 0; j < display.DISPLAYS; j++){
+                            for (int y = 0; y < 8; y++){
+                                b.set(7 - y, cout[(y + (j * 8))].i > (4096 / 8) * x);
+                            }
+                            
+                            display.write(x+1, binarytoint(b));
+
+                            b.reset();
+                        }
+
+                        display.update();
+                    }
+
+                    // release resources
+                    kiss_fft_free(cfg_f);
+                    delete[] cin;
+                    delete[] cout;
+
+                    // reset index
+                    sample_i = 0;
+                }
+
+                break;
+
+            case 1:
+                /*for (int i = 0; i < 8; i++){
+                    for (int j = 0; j < 4; i++){
+                        if (v > (1.0f / 8.0f) * (i + 1)) { bin = 0b11111111; }
+                        max.write(i+1, bin);
+                        bin = 0b00000000;
+                    }
+
+                    max.update();
+                }*/
+
+                display.clear();
+                
+                for (int i = 0; i < display.DISPLAYS; i++){
+                    display.write(2, 0b11111111);
+                }
+
+                display.update();
+
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            case 5:
+                break;
+            case 6:
+                break;
+            case 7:
+                break;
+            case 8:
+                break;
+            case 9:
+                break;
+            case 10:
+                break;
+            case 11:
+                break;
+            case 12:
+                break;
+            case 13:
+                break;
+            case 14:
+                break;
+            case 15:
+                break;
         }
     }
 
-    max.update();
+    return 0;
+}
 
-    // intensity
-    for (int display = 0; display < max.DISPLAYS; display++){
-        max.write(10, 10);
-        max.update();
-    }
-
-    max.update();
-
-    // scan limit
-    for (int display = 0; display < max.DISPLAYS; display++){
-        max.write(0x0B, 7);
-    }
-
-    max.update();
-    
-    
-    
-    // write to 4th display
-    /*max.write(0x00, 0b00000000); // line 1, display 1 (NO-OP)
-    max.write(0x00, 0b00000000); // line 1, display 2 (NO-OP)
-    max.write(0x00, 0b00000000); // line 1, display 3 (NO-OP)
-    max.write(1, 0b00000000); // line 1, display 4
-    max.update();*/
-
-    // initialise ADC
-    adc_init();
-    // Make sure GPIO is high-impedance, no pullups etc
-    adc_gpio_init(26);
-    // Select ADC input 0 (GPIO26)
-    adc_select_input(0);
-
-    calibrate_stage = 2;
-
-    while (true){ 
-        // read voltage as percentage
-        float v = adc_read() / 4096.0f; // 4096 == 1 << 12
+/* while (true){ 
+        
 
         // fade
         int t [4] = { 255 };
@@ -124,6 +183,7 @@ int main (){
         // binary
         uint8_t b;
 
+       
         switch (calibrate_stage){
             case 0:
                 // illuminate record button
@@ -188,115 +248,20 @@ int main (){
                 break;
 
             case 2:
-                // record samples
-                sample[sample_i] = (v - s) * 4096;
-                sample_i++;
-
-                if (sample_i == 64){
-                    pico_rgb_keypad.clear();
-                    // feed sample into fft
-                    
-                    // initialize input data for FFT
-                    int nfft = sizeof(sample) / sizeof(float); // nfft = 8
-
-                    // allocate input/output 1D arrays
-                    kiss_fft_cpx* cin = new kiss_fft_cpx[nfft];
-                    kiss_fft_cpx* cout = new kiss_fft_cpx[nfft];
-
-                    // initialize data storage
-                    memset(cin, 0, nfft * sizeof(kiss_fft_cpx));
-                    memset(cout, 0, nfft * sizeof(kiss_fft_cpx));
-
-                    // copy the input array to cin
-                    for (int i = 0; i < nfft; ++i)
-                    {
-                        cin[i].r = sample[i];
-                    }
-
-                    // setup the size and type of FFT: forward
-                    bool is_inverse_fft = false;
-                    kiss_fft_cfg cfg_f = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0); // typedef: struct kiss_fft_state*
-
-                    // execute transform for 1D
-                    kiss_fft(cfg_f, cin , cout);
-
-                    // find max
-                    int m;
-                    for (int i = 0; i < nfft; i++){
-                        if (cout[i].i > m) { m = cout[i].i; }
-                    }
-
-                    // clear all LEDS
-                    for (int x = 0; x < 8; x++){
-                        max.write(x+1, 0b00000000);
-                        max.write(x+1, 0b00000000);
-                        max.write(x+1, 0b00000000);
-                        max.write(x+1, 0b00000000);
-                        max.update();
-                    }
-
-
-                    for (int x = 0; x < 8; x++){
-                        for (int j = 0; j < 4; j++){
-                            // display fft
-                            std::bitset<8> b { 0b00000000 };
-
-                            for (int y = 0; y < 8; y++){
-                                b.set(7 - y, cout[(y + (j * 8))].i > (4096 / 8) * x);
-                            }
-                            
-                            max.write(x+1, binarytoint(b));
-
-                            b.reset();
-                        }
-            
-                        // display adc voltage
-                        //if (v > (1.0f / 8.0f) * (x + 1)) { max.write(x+1, 0b11111111); } else { max.write(0x00, 0b00000000); }
-                        max.update();
-                    }
-
-                    // release resources
-                    kiss_fft_free(cfg_f);
-                    delete[] cin;
-                    delete[] cout;
-
-                    // reset index
-                    sample_i = 0;
+                
                 }
 
                 // fade peak
                 /*for (int i = 0; i < 4; i++){
                     t[i]--;
                     if (t[i] > 0) { pico_rgb_keypad.illuminate(peak[i], t[i], t[i], t[i]); }
-                }*/
+                }
 
                 break;
             
             default:
-                break;
-        }
+                break;*/
+        //}
 
-        pico_rgb_keypad.update();
-    }
-
-    return 0;
-}
-
-// FFT
-//#include "kissfft/kiss_fft.c" - thanks to CMake we don't need to import the C code anymore
-//#include <cstdlib>
-// https://www.fftw.org/
-// https://www.fftw.org/fftw3_doc/Complex-One_002dDimensional-DFTs.html
-// https://github.com/mborgerding/kissfft
-// https://github.com/AlexFWulff/awulff-pico-playground/tree/main/adc_fft
-
-// frequency
-// https://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft
-/* 0:   Index * Sample rate / Bin size = frequency of index Hz
-  1:   1 * 44100 / 1024 =    43.1 Hz <- The first bin is 43.1 Hz - if we get the REAL number for this we get the amplitude of this frequency
-  // The imaginary number is slightly more complex - see https://stackoverflow.com/questions/25624548/fft-real-imaginary-abs-parts-interpretation
-  2:   2 * 44100 / 1024 =    86.1 Hz
-  */
-
-// LED Screen
-// https://www.aliexpress.com/item/1005008005112441.html?spm=a2g0o.tesla.0.0.3dc5oZXgoZXgOa&pdp_npi=6%40dis%21USD%21%2413.92%21%240.99%21%21%21%21%21%40211b618e17572643030058606e76ce%2112000043231311504%21btf%21%21%21%211%210%21&afTraceInfo=1005008005112441__pc__c_ppc_item_bridge_pc_main__UgW8L9M__1757264303097
+        //pico_rgb_keypad.update();
+    //}

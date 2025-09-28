@@ -5,26 +5,15 @@
 
 // keypad
 using namespace pimoroni;
-PicoRGBKeypad pico_rgb_keypad = PicoRGBKeypad();
-
-// max7219
-using namespace digishuo;
-max7219 max = max7219();
+PicoRGBKeypad keypad = PicoRGBKeypad();
 
 // microphone
-#include "hardware/adc.h"
-int calibrate_stage = 0;
+using namespace adafruit;
+MAX981 microphone = MAX981();
 
-// OUT - GP26_AO
-// VDD - ADC_VREF
-// GND - AGND
-
-//// Calculate silence
-float s = 0.0;
-float s_peak;
-const int s_frames = 64;
-int s_fi;
-int s_captures;
+// display
+using namespace digishuo;
+max7219 display = max7219();
 
 // FFT
 #include "libraries/kissfft/kiss_fft.h"
@@ -32,3 +21,4 @@ int s_captures;
 //// record sample
 int sample [64] = { 0 };
 int sample_i;
+
