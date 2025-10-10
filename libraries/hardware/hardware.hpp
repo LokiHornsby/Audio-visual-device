@@ -1,5 +1,13 @@
 #pragma once
 
+#include <bits/stdc++.h>
+#include "pico/stdlib.h"
+#include "hardware/i2c.h"
+#include "hardware/spi.h"
+#include "hardware/adc.h"
+
+int binarytoint(std::bitset<8> a);
+
 // https://www.analog.com/media/en/technical-documentation/data-sheets/max7219-max7221.pdf
 // https://www.friendlywire.com/tutorials/max7219/
 // https://github.com/raspberrypi/pico-examples/blob/master/spi/max7219_32x8_spi/max7219_32x8_spi.c
@@ -15,13 +23,17 @@ namespace digishuo {
         CS = 13
     };
 
-    class max7219 {
+    class MAX7219 {
         public:
-            int DISPLAYS = 4;
+            static const int DISPLAYS = 12;
+            static const int WIDTH = 8;
+            static const int HEIGHT = 8;
             void init();
-            void write(uint8_t reg, uint8_t data);
+            void write(uint8_t reg, uint8_t data, bool block);
             void update();
             void clear();
+            std::bitset<digishuo::MAX7219::WIDTH> rows [digishuo::MAX7219::HEIGHT];
+            void resetRows();
     };
 }
 

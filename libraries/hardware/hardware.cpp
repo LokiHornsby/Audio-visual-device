@@ -1,16 +1,24 @@
 #include <string.h>
-#include <math.h>
 #include <stdint.h>
 
 #include "hardware.hpp"
 
-#include "pico/stdlib.h"
-#include "hardware/i2c.h"
-#include "hardware/spi.h"
-#include "hardware/adc.h"
+int binarytoint(std::bitset<8> a){
+    return static_cast<int>(a.to_ulong());
+}
 
 namespace digishuo {
-    void max7219::init(){
+    void MAX7219::resetRows(){
+        for (int i = 0; i < HEIGHT; i++){
+            rows[i].reset();
+        }
+    }
+
+    void MAX7219::update(){
+        gpio_put(pin::CS, 1);
+    }
+
+    void MAX7219::init(){
         // general init
         spi_init(spi1, 10 * 1000 * 1000);
 
@@ -19,75 +27,51 @@ namespace digishuo {
 
         gpio_init(pin::CS);
         gpio_set_dir(pin::CS, GPIO_OUT);
-        gpio_put(pin::CS, 1);
 
-        // test
-        for (int d = 0; d < DISPLAYS; d++){
-          write(0x0F, 1); 
-        }
-        
-        update();
+        // test on
+        write(0x0F, 1, true);
 
+        // delay
         sleep_ms(1000);
 
-        for (int d = 0; d < DISPLAYS; d++){
-          write(0x0F, 0); 
-        }
-        
-        update();
-
-        sleep_ms(1000);
+        // test off
+        write(0x0F, 0, true);
 
         // shutdown mode
-        for (int d = 0; d < DISPLAYS; d++){
-          write(0x0C, 0b00000001);
-        }
-
-        update();
-
-        sleep_ms(1000);
+        write(0x0C, 0b00000001, true);
 
         // intensity
-        for (int d = 0; d < DISPLAYS; d++){
-          write(0X0A, 0b00000001);
-        }
-
-        update();
-
-        sleep_ms(1000);
-
+        write(0X0A, 0b00000001, true);
+        
         // scan limit
-        for (int d = 0; d < DISPLAYS; d++){
-          write(0x0B, 7);
-        }
+        write(0x0B, 7, true);
 
-        update();
-
-        sleep_ms(1000);
-
+        // clear
         clear();
     }
 
-    void max7219::write(uint8_t reg, uint8_t data) {
+    void MAX7219::write(uint8_t reg, uint8_t data, bool block) {
+        // set write mode
+        if (gpio_get(pin::CS) != 0) { gpio_put(pin::CS, 0); }
+
+        // inputs
         uint8_t buf[2];
         buf[0] = reg;
         buf[1] = data;
-
-        spi_write_blocking(spi1, buf, 2);
-    }
-
-    void max7219::update(){
-        gpio_put(pin::CS, 0);
-        gpio_put(pin::CS, 1);
-    }
-
-    void max7219::clear(){
-        for (int x = 0; x < 8; x++){ // rows
-            for (int y = 0; y < DISPLAYS; y++){ // displays
-              write(x+1, 0b00000000); // columns
-            }
-		
+        
+        // write to all displays?
+        if (block){
+            for (int d = 0; d < DISPLAYS; d++){ spi_write_blocking(spi1, buf, 2); }
             update();
+        } else {
+            spi_write_blocking(spi1, buf, 2);
+        }
+    }
+
+    void MAX7219::clear(){
+        std::bitset<WIDTH> columns;
+        for (int x = 0; x < HEIGHT; x++){ // rows
+            write(x+1, binarytoint(columns), true); // columns
         }
     }
 }
@@ -131,7 +115,7 @@ namespace pimoroni {
         gpio_set_function(pin::SCK, GPIO_FUNC_SPI);
         gpio_set_function(pin::MOSI, GPIO_FUNC_SPI);
 
-        update();
+        
     }
 
     void PicoRGBKeypad::update() {
