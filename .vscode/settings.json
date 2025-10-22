@@ -21,27 +21,24 @@
     "terminal.integrated.env.windows": {
         "PICO_SDK_PATH": "${env:USERPROFILE}/.pico-sdk/sdk/2.2.0",
         "PICO_TOOLCHAIN_PATH": "${env:USERPROFILE}/.pico-sdk/toolchain/14_2_Rel1",
-        "Path": "${env:USERPROFILE}/.pico-sdk/toolchain/14_2_Rel1/bin;${env:USERPROFILE}/.pico-sdk/picotool/2.2.0/picotool;${env:USERPROFILE}/.pico-sdk/cmake/v3.31.5/bin;${env:USERPROFILE}/.pico-sdk/ninja/v1.12.1;${env:PATH}"
+        "Path": "${env:USERPROFILE}/.pico-sdk/toolchain/14_2_Rel1/bin;${env:USERPROFILE}/.pico-sdk/picotool/2.2.0-a4/picotool;${env:USERPROFILE}/.pico-sdk/cmake/v3.31.5/bin;${env:USERPROFILE}/.pico-sdk/ninja/v1.12.1;${env:PATH}"
     },
     "terminal.integrated.env.osx": {
         "PICO_SDK_PATH": "${env:HOME}/.pico-sdk/sdk/2.2.0",
         "PICO_TOOLCHAIN_PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1",
-        "PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.2.0/picotool:${env:HOME}/.pico-sdk/cmake/v3.31.5/bin:${env:HOME}/.pico-sdk/ninja/v1.12.1:${env:PATH}"
+        "PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.2.0-a4/picotool:${env:HOME}/.pico-sdk/cmake/v3.31.5/bin:${env:HOME}/.pico-sdk/ninja/v1.12.1:${env:PATH}"
     },
     "terminal.integrated.env.linux": {
         "PICO_SDK_PATH": "${env:HOME}/.pico-sdk/sdk/2.2.0",
         "PICO_TOOLCHAIN_PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1",
-        "PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.2.0/picotool:${env:HOME}/.pico-sdk/cmake/v3.31.5/bin:${env:HOME}/.pico-sdk/ninja/v1.12.1:${env:PATH}"
+        "PATH": "${env:HOME}/.pico-sdk/toolchain/14_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.2.0-a4/picotool:${env:HOME}/.pico-sdk/cmake/v3.31.5/bin:${env:HOME}/.pico-sdk/ninja/v1.12.1:${env:PATH}"
     },
     "raspberry-pi-pico.cmakeAutoConfigure": false,
     "raspberry-pi-pico.useCmakeTools": true,
     "raspberry-pi-pico.cmakePath": "${HOME}/.pico-sdk/cmake/v3.31.5/bin/cmake",
     "raspberry-pi-pico.ninjaPath": "${HOME}/.pico-sdk/ninja/v1.12.1/ninja",
     "files.associations": {
-        "string": "cpp",
-        "format": "cpp",
         "bitset": "cpp",
-        "algorithm": "cpp",
         "any": "cpp",
         "array": "cpp",
         "atomic": "cpp",
@@ -77,11 +74,13 @@
         "list": "cpp",
         "map": "cpp",
         "set": "cpp",
+        "string": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "vector": "cpp",
         "exception": "cpp",
         "expected": "cpp",
+        "algorithm": "cpp",
         "functional": "cpp",
         "iterator": "cpp",
         "memory": "cpp",
@@ -97,6 +96,7 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
+        "format": "cpp",
         "fstream": "cpp",
         "future": "cpp",
         "generator": "cpp",

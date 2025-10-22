@@ -24,8 +24,6 @@
 }*/
 
 /*
-Scanning bar graph onsets 
-
 Delay between beats for onset detection 
 
 detect start and end of beats
@@ -34,20 +32,86 @@ Frequency change based on oscillations
 
 Double fft then take half of the sample
 Start Index from last position then negate from there
+
+clear displays on each button press
+
+optimise resetting rows and for loops
 */
+
+void back(){
+    selc[0] = 0; selc[1] = 255; selc[2] = 0;
+    sel = prevsel;
+    t = 0;
+}
+
+// FFT
+bool performFFT(float v){
+    // size of sample
+    int size = nfft - 1;
+
+    // if the index is less than the sample size
+    if (ffti < size){
+        // record sample
+        sample[ffti] = v;
+
+        // increment index
+        ffti++;
+
+        return false;
+
+    // if the index is at the sample size
+    } else if (ffti == size){
+        // allocate input/output 1D arrays
+        cin = new kiss_fft_cpx[nfft];
+        cout = new kiss_fft_cpx[nfft];
+
+        // initialize data storage
+        memset(cin, 0, nfft * sizeof(kiss_fft_cpx));
+        memset(cout, 0, nfft * sizeof(kiss_fft_cpx));
+
+        // copy the input array to cin
+        for (int i = 0; i < nfft; ++i){
+            cin[i].r = sample[i];
+        }
+
+        // setup the size and type of FFT: forward
+        bool is_inverse_fft = false;
+        cfg_f = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0); // typedef: struct kiss_fft_state*
+
+        // execute transform for 1D
+        kiss_fft(cfg_f, cin , cout);
+
+        // increcement index out of bounds
+        ffti++;
+
+        return true;
+
+    // if the index is out of bounds
+    } else {
+        // release resources
+        kiss_fft_free(cfg_f);
+        delete[] cin;
+        delete[] cout;
+
+        // reset index
+        ffti = 0;
+
+        return false;
+    }
+}
 
 /// @brief Main function
 /// @return 
 int main (){
-    // -- INITIALISE
+    // initialise all hardware
     stdio_init_all();
     keypad.init();
     microphone.init();
     display.init();
 
-    while (true){
-        // -- KEYPAD
+    selc[1] = 255;
 
+    while (true){
         // button index
         ind++;
 
@@ -58,13 +122,22 @@ int main (){
         // if any button is pressed
         held = keypad.get_button_states() > 0;
 
+        if (!held){
+            buttonup = sel;
+        }
+
         // if pressed button with index of "ind"
         if (keypad.get_button_states() & (0b1 << ind)) { 
-            // if current button doesn't equal selected button
-            if (ind != sel){
+
+            // if the current button doesn't equal the selected button 
+            if (ind != sel && buttonup != ind){
+                t = 0;
 
                 // set the previous selection
                 prevsel = sel;
+
+                // clear display
+                display.clear();
 
                 // select current button
                 sel = ind;
@@ -74,62 +147,30 @@ int main (){
         // colors
         keypad.illuminate(ind, 255, 255, 255); 
         keypad.illuminate(prevsel, 255, 255, 0);
-        if (held) { keypad.illuminate(sel, 0, 255, 0); } else { keypad.illuminate(sel, 255, 0, 0); }
+        keypad.illuminate(sel, selc[0], selc[1], selc[2]);
         keypad.update();
 
-        // -- ANALYSIS
-
         // input
-        float v = microphone.getVoltage() - silence;
+        float v = microphone.getVoltage();
 
+        // switch to selected mode
         switch (sel) {
             // FFT
             case 0:
-                /*// record samples
-                sample[ffti] = v;
-                ffti++;
+                display.clear();
 
-                if (ffti == (nfft * 2) - 1){
-                    // allocate input/output 1D arrays
-                    kiss_fft_cpx* cin = new kiss_fft_cpx[nfft];
-                    kiss_fft_cpx* cout = new kiss_fft_cpx[nfft];
-
-                    // initialize data storage
-                    memset(cin, 0, nfft * sizeof(kiss_fft_cpx));
-                    memset(cout, 0, nfft * sizeof(kiss_fft_cpx));
-
-                    // copy the input array to cin
-                    for (int i = 0; i < nfft; ++i)
-                    {
-                        cin[i].r = sample[i];
-                    }
-
-                    // setup the size and type of FFT: forward
-                    bool is_inverse_fft = false;
-                    kiss_fft_cfg cfg_f = kiss_fft_alloc(nfft, is_inverse_fft, 0, 0); // typedef: struct kiss_fft_state*
-
-                    // execute transform for 1D
-                    kiss_fft(cfg_f, cin , cout);
-
-                    // find max
-                    int m;
-                    for (int i = 0; i < nfft; i++){
-                        if (cout[i].i > m) { m = cout[i].i; }
-                    }
-
-                    display.clear();
-
+                if (performFFT(v)){
                     // select row
-                    for (int x = 0; x < 8; x++){
+                    for (int x = 0; x < display.HEIGHT; x++){
                         // select display
                         for (int d = 0; d < display.DISPLAYS; d++){
                             // construct a row of bits
-                            for (int bit = 0; bit < 8; bit++){
-                                int ffti = (d * 8) + (bit);
+                            for (int bit = 0; bit < display.WIDTH; bit++){
+                                int ffti = (d * display.WIDTH) + (bit);
 
                                 display.rows[0].set(
-                                    7 - bit, // position
-                                    cout[ffti].i > (microphone.getPeak() / 8) * x // display bit? (if it's more than range)
+                                    (display.WIDTH - 1) - bit, // position
+                                    cout[ffti].i > (microphone.getPeak() / display.WIDTH) * x // display bit? (if it's more than range)
                                 );
                             }
 
@@ -144,16 +185,11 @@ int main (){
                         display.update();
                     }
 
-                    // release resources
-                    kiss_fft_free(cfg_f);
-                    delete[] cin;
-                    delete[] cout;
+                    // free resources
+                    performFFT(v);
+                }
 
-                    // reset index
-                    ffti = 0;
-                }*/
-
-                break;
+            break;
 
             // MAGNITUDE
             case 1:
@@ -165,9 +201,12 @@ int main (){
                     for (int d = 0; d < display.DISPLAYS; d++){
                         // build a row
                         for (int x = 0; x < display.WIDTH; x++){
-                            display.rows[0].set(7 - x, v > (microphone.getPeak() / nfft) * (x + (d * display.WIDTH)));
+                            display.rows[0].set(
+                                (display.WIDTH - 1) - x, 
+                                v > (microphone.getPeak() / (float)nfft) * (float)(x + (d * display.WIDTH))
+                            );
                         }
-          
+        
                         display.write(y + 1, binarytoint(display.rows[0]), false);
 
                         display.rows[0].reset();
@@ -178,14 +217,17 @@ int main (){
 
                 break;
 
-            // ONSET SCANNING
-            case 2:
+            // ONSET SCANNING 
+            // ------------------------------------------------------------------- Average and peak??
+            case 2: 
+                o_v = ((v - silence) / microphone.getPeak()) * 8.0f;
+                if (o_v > o_height) { o_height = o_v; }
                 t++;
 
-                if (t > 200){
-                    barpos++;
+                if (t > o_max){
+                    o_avg = (float)o_avg / (float)o_max;
 
-                    o_height = (v / microphone.getPeak()) * 8.0f;
+                    barpos++;
                     
                     if (barpos > 8){
                         dis++;
@@ -221,14 +263,40 @@ int main (){
                     }
 
                     o_store = o_height;
-
+                    o_avg = 0;
+                    o_height = 0;
                     t = 0;
                 }
 
                 break;
 
+            // Instruments
             case 3:
+                if (performFFT(v)){
+                    if (cout[display.WIDTH / 8].i > microphone.getPeak() / 4){
+                        for (int y = 0; y < display.HEIGHT; y++){
+                            for (int x = 0; x < display.WIDTH; x++){
+                                display.rows[(display.HEIGHT - 1) - y].set(x, B[display.WIDTH * y + x]);
+                            }
+
+                            for (int d = 0; d < display.DISPLAYS; d++){
+                                display.write(y + 1, binarytoint(display.rows[y]), false);
+                            }
+
+                            display.update();
+                        }  
+                    }
+
+                    // clear the display after a few seconds
+                    sleep_ms(200);
+                    display.clear();
+
+                    // free resources
+                    performFFT(v);
+                }
+
                 break;
+
             case 4:
                 break;
             case 5:
@@ -254,21 +322,42 @@ int main (){
 
             // RECORD SILENCE
             case 15:
-                if (held){
-                    t++;     
+                buttonup = 15;
 
-                    // capture silence
-                    if (t > s_time){
-                        s += v;
-
-                    // reset
+                if (t < s_time){
+                    if (held){
+                        t++;
+                        silence = silence + v;
                     } else {
                         silence = 0;
+                        back();
                     }
                 } else {
-                    t = 0;
-                    if (t > s_time) { silence = s / (t - s_time); } else { s = 0; }
-                    sel = prevsel; // select previous button
+                    silence = (silence / s_time);
+                    back();
+                }
+
+                int tv = ((float)t / (float)s_time) * 255.0f;
+                selc[0] = 255 - tv; 
+                selc[1] = tv; 
+
+                display.clear();
+
+                // build all rows
+                for (int y = 0; y < display.HEIGHT; y++){
+                    // build all displays
+                    for (int d = 0; d < display.DISPLAYS; d++){
+                        // build a row
+                        for (int x = 0; x < display.WIDTH; x++){
+                            display.rows[0].set(7 - x, v - silence > (microphone.getPeak() / nfft) * (x + (d * display.WIDTH)));
+                        }
+        
+                        display.write(y + 1, binarytoint(display.rows[0]), false);
+
+                        display.rows[0].reset();
+                    }
+    
+                    display.update();
                 }
 
                 break;
@@ -277,96 +366,3 @@ int main (){
 
     return 0;
 }
-
-/* while (true){ 
-        
-
-        // fade
-        int t [4] = { 255 };
-        int peak [4] = { 0 };
-
-        // binary
-        uint8_t b;
-
-       
-        switch (calibrate_stage){
-            case 0:
-                // illuminate record button
-                pico_rgb_keypad.illuminate(0, 255, 0, 0);
-                
-                // if the record button is pressed change stage
-                if (pico_rgb_keypad.get_button_states() & (0b1 << 0)){
-                    calibrate_stage = 1;
-                }
-
-                break;
-
-            case 1:
-                pico_rgb_keypad.clear();
-
-                // update 
-                pico_rgb_keypad.illuminate(0, 255 - s_captures, s_captures, 0);
-
-                // if we've captured x amount of peaks      
-                if (s_captures >= 255){
-                    // calculate average silence using peaks
-                    s = s / s_captures;
-
-                    // clear visuals
-                    pico_rgb_keypad.clear();
-
-                    // change stage
-                    calibrate_stage = 2;
-                // if we haven't captured enough peaks and the button is released
-                } else if (!(pico_rgb_keypad.get_button_states() & (0b1 << 0))) {
-                    // reset
-                    s = 0;
-                    s_peak = 0;
-                    s_fi = 0;
-                    s_captures = 0;
-                    calibrate_stage = 0;
-                }
-
-                // record peak
-                if (v > s_peak){
-                    s_peak = v;
-                }
-
-                // if the frames are over the limit
-                if (s_fi == s_frames){
-                    // record the most recent peak to "s" var
-                    s += s_peak;
-
-                    // increment capture index
-                    s_captures++; 
-
-                    // reset peak value
-                    s_peak = 0;
-
-                    // reset frame index
-                    s_fi = 0;
-                }
-
-                // increment frame index
-                s_fi++;
-
-                break;
-
-            case 2:
-                
-                }
-
-                // fade peak
-                /*for (int i = 0; i < 4; i++){
-                    t[i]--;
-                    if (t[i] > 0) { pico_rgb_keypad.illuminate(peak[i], t[i], t[i], t[i]); }
-                }
-
-                break;
-            
-            default:
-                break;*/
-        //}
-
-        //pico_rgb_keypad.update();
-    //}

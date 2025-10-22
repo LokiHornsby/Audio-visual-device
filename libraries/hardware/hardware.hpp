@@ -11,6 +11,7 @@ int binarytoint(std::bitset<8> a);
 // https://www.analog.com/media/en/technical-documentation/data-sheets/max7219-max7221.pdf
 // https://www.friendlywire.com/tutorials/max7219/
 // https://github.com/raspberrypi/pico-examples/blob/master/spi/max7219_32x8_spi/max7219_32x8_spi.c
+// LED matrix 
 namespace digishuo {
     // VCC - VBUS
     // GND - AGND
@@ -29,14 +30,15 @@ namespace digishuo {
             static const int WIDTH = 8;
             static const int HEIGHT = 8;
             void init();
-            void write(uint8_t reg, uint8_t data, bool block);
-            void update();
+            void write(uint8_t reg, uint8_t data, bool block); // (define first set of rows - draw set of rows to each display - move onto next row)
+            void update(); 
             void clear();
             std::bitset<digishuo::MAX7219::WIDTH> rows [digishuo::MAX7219::HEIGHT];
             void resetRows();
     };
 }
 
+// Microphone
 namespace adafruit {
     // GND - AGND
 	// VDD - VREF
@@ -51,6 +53,7 @@ namespace adafruit {
 }
 
 // https://shop.pimoroni.com/products/pico-rgb-keypad-base?variant=32369517166675
+// RGB keypad
 namespace pimoroni {
     enum pin {
         SDA       =  4,
