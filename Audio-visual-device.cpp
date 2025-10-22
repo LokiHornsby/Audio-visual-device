@@ -36,6 +36,8 @@ Start Index from last position then negate from there
 clear displays on each button press
 
 optimise resetting rows and for loops
+
+allow rows to be stored for each display
 */
 
 void back(){
