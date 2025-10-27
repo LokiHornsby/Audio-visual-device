@@ -48,16 +48,48 @@ int o_v = 0;
 const int o_max = 100;
 
 // Frequency detection
-int B [display.WIDTH * display.HEIGHT] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 1, 1, 1, 0, 0, 0, 
-    0, 0, 1, 0, 0, 1, 0, 0, 
-    0, 0, 1, 1, 1, 0, 0, 0, 
-    0, 0, 1, 0, 0, 1, 0, 0, 
-    0, 0, 1, 0, 0, 1, 0, 0, 
-    0, 0, 1, 1, 1, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0
-};
+float sum = 0;
+
+#define r1 { 0, display.WIDTH * 7 }
+#define r2 { display.WIDTH * 7, display.WIDTH * 8 }
+#define r3 { display.WIDTH * 8, display.WIDTH * display.DISPLAYS }
+int r [display.DISPLAYS][2] = { r1, r2, r1, r1, r1, r1, r1, r1, r1, r1, r1, r3 };
+
+#define B { \
+    0, 0, 0, 0, 0, 0, 0, 0, \
+    0, 0, 1, 1, 1, 0, 0, 0, \
+    0, 0, 1, 0, 0, 1, 0, 0, \
+    0, 0, 1, 1, 1, 0, 0, 0, \
+    0, 0, 1, 0, 0, 1, 0, 0, \
+    0, 0, 1, 0, 0, 1, 0, 0, \
+    0, 0, 1, 1, 1, 0, 0, 0, \
+    0, 0, 0, 0, 0, 0, 0, 0  \
+}
+
+#define V { \
+    0, 0, 0, 0, 0, 0, 0, 0, \
+    0, 0, 1, 0, 0, 0, 1, 0, \
+    0, 0, 1, 0, 0, 0, 1, 0, \
+    0, 0, 0, 1, 0, 1, 0, 0, \
+    0, 0, 0, 1, 0, 1, 0, 0, \
+    0, 0, 0, 0, 1, 0, 0, 0, \
+    0, 0, 0, 0, 1, 0, 0, 0, \
+    0, 0, 0, 0, 0, 0, 0, 0  \
+}
+
+// Silence (frequencies to ignore as they are background noise)
+#define S { \
+    0, 0, 0, 0, 0, 0, 0, 0  \
+    0, 0, 1, 1, 1, 1, 1, 0, \
+    0, 1, 0, 0, 0, 0, 0, 0, \
+    0, 1, 0, 0, 0, 0, 0, 0, \
+    0, 0, 1, 1, 1, 1, 0, 0, \
+    0, 0, 0, 0, 0, 0, 1, 0, \
+    0, 1, 1, 1, 1, 1, 0, 0, \
+    0, 0, 0, 0, 0, 0, 0, 0, \
+}
+
+int ST [display.DISPLAYS][display.WIDTH * display.HEIGHT] = { B, V, V, V, V, V, V, V, V, V, V, B };
 
 // RECORD SILENCE
 const int s_time = 500;

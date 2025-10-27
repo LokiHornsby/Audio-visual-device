@@ -9,8 +9,10 @@ int binarytoint(std::bitset<8> a){
 
 namespace digishuo {
     void MAX7219::resetRows(){
-        for (int i = 0; i < HEIGHT; i++){
-            rows[i].reset();
+        for (int d = 0; d < DISPLAYS; d++){
+            for (int y = 0; y < HEIGHT; y++){
+                rows[d][y].reset();
+            }
         }
     }
 

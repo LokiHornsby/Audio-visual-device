@@ -33,7 +33,7 @@ namespace digishuo {
             void write(uint8_t reg, uint8_t data, bool block); // (define first set of rows - draw set of rows to each display - move onto next row)
             void update(); 
             void clear();
-            std::bitset<digishuo::MAX7219::WIDTH> rows [digishuo::MAX7219::HEIGHT];
+            std::bitset<digishuo::MAX7219::WIDTH> rows [digishuo::MAX7219::DISPLAYS][digishuo::MAX7219::HEIGHT];
             void resetRows();
     };
 }

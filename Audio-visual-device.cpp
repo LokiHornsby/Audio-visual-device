@@ -170,17 +170,17 @@ int main (){
                             for (int bit = 0; bit < display.WIDTH; bit++){
                                 int ffti = (d * display.WIDTH) + (bit);
 
-                                display.rows[0].set(
+                                display.rows[0][0].set(
                                     (display.WIDTH - 1) - bit, // position
                                     cout[ffti].i > (microphone.getPeak() / display.WIDTH) * x // display bit? (if it's more than range)
                                 );
                             }
 
                             // write a row of bits (x) to display (d)
-                            display.write(x+1, binarytoint(display.rows[0]), false);
+                            display.write(x+1, binarytoint(display.rows[0][0]), false);
 
                             // reset row
-                            display.rows[0].reset();
+                            display.rows[0][0].reset();
                         }
 
                         // update each display with a row of bits
@@ -191,10 +191,11 @@ int main (){
                     performFFT(v);
                 }
 
-            break;
+                break;
 
             // MAGNITUDE
             case 1:
+                /*
                 display.clear();
 
                 // build all rows
@@ -215,13 +216,14 @@ int main (){
                     }
     
                     display.update();
-                }
+                }*/
 
                 break;
 
             // ONSET SCANNING 
             // ------------------------------------------------------------------- Average and peak??
             case 2: 
+                /*
                 o_v = ((v - silence) / microphone.getPeak()) * 8.0f;
                 if (o_v > o_height) { o_height = o_v; }
                 t++;
@@ -268,30 +270,45 @@ int main (){
                     o_avg = 0;
                     o_height = 0;
                     t = 0;
-                }
+                }*/
 
                 break;
 
             // Instruments
             case 3:
                 if (performFFT(v)){
-                    if (cout[display.WIDTH / 8].i > microphone.getPeak() / 4){
-                        for (int y = 0; y < display.HEIGHT; y++){
+                    for (int y = 0; y < display.HEIGHT; y++){
+                        for (int d = 0; d < display.DISPLAYS; d++){
                             for (int x = 0; x < display.WIDTH; x++){
-                                display.rows[(display.HEIGHT - 1) - y].set(x, B[display.WIDTH * y + x]);
+                                // calculate fft sum of a range
+                                for (int ri = r[d][0]; ri < r[d][1]; ri++){
+                                    sum += cout[ri].i;
+                                }
+                                
+                                // calculate value to pass to bitset array
+                                bool val;
+
+                                // if fft sum of a range is more than 0
+                                if (sum > microphone.getPeak() * 2) {
+                                    // set value to integer image (ST = STORE)
+                                    val = ST[d][(display.WIDTH * y) + x];
+                                } else {
+                                    // set value to false
+                                    val = false;
+                                }
+
+                                // set value in bitset array
+                                display.rows[d][(display.HEIGHT - 1) - y].set(x, val);
+
+                                // reset sum
+                                sum = 0;
                             }
 
-                            for (int d = 0; d < display.DISPLAYS; d++){
-                                display.write(y + 1, binarytoint(display.rows[y]), false);
-                            }
+                            display.write(y + 1, binarytoint(display.rows[d][y]), false);
+                        }
 
-                            display.update();
-                        }  
+                        display.update();
                     }
-
-                    // clear the display after a few seconds
-                    sleep_ms(200);
-                    display.clear();
 
                     // free resources
                     performFFT(v);
@@ -324,6 +341,7 @@ int main (){
 
             // RECORD SILENCE
             case 15:
+                /*
                 buttonup = 15;
 
                 if (t < s_time){
@@ -360,7 +378,7 @@ int main (){
                     }
     
                     display.update();
-                }
+                }*/
 
                 break;
         }
