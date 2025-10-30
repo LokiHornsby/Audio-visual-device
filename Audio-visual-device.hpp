@@ -1,3 +1,5 @@
+// NEEDS UNUSED VARIABLES REMOVED
+
 #pragma once
 #include <bits/stdc++.h>
 
@@ -27,15 +29,20 @@ MAX7219 display = MAX7219();
 int t = 0;
 
 // FFT
+// https://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft
+// FFT BIN X = X * (Sample rate / nfft (size of fft))
 #include "libraries/kissfft/kiss_fft.h" 
 bool enableFFT = false;
 bool FFTdataused = true;
 kiss_fft_cpx* cin;
 kiss_fft_cpx* cout;
 kiss_fft_cfg cfg_f;
-const int nfft = (MAX7219::DISPLAYS * MAX7219::WIDTH);
+const int nfft = (MATRIX_DISPLAYS * MATRIX_WIDTH);
 float sample [nfft] = { 0 };
 int ffti = 0;
+
+// FFT DRAW
+int bin8 [nfft] = { };
 
 // ONSET SCANNING
 int barpos = 0;
@@ -48,13 +55,6 @@ int o_v = 0;
 const int o_max = 100;
 
 // Frequency detection
-float sum = 0;
-
-#define r1 { 0, display.WIDTH * 7 }
-#define r2 { display.WIDTH * 7, display.WIDTH * 8 }
-#define r3 { display.WIDTH * 8, display.WIDTH * display.DISPLAYS }
-int r [display.DISPLAYS][2] = { r1, r2, r1, r1, r1, r1, r1, r1, r1, r1, r1, r3 };
-
 #define B { \
     0, 0, 0, 0, 0, 0, 0, 0, \
     0, 0, 1, 1, 1, 0, 0, 0, \
@@ -79,17 +79,24 @@ int r [display.DISPLAYS][2] = { r1, r2, r1, r1, r1, r1, r1, r1, r1, r1, r1, r3 }
 
 // Silence (frequencies to ignore as they are background noise)
 #define S { \
-    0, 0, 0, 0, 0, 0, 0, 0  \
+    0, 0, 0, 0, 0, 0, 0, 0, \
     0, 0, 1, 1, 1, 1, 1, 0, \
     0, 1, 0, 0, 0, 0, 0, 0, \
     0, 1, 0, 0, 0, 0, 0, 0, \
     0, 0, 1, 1, 1, 1, 0, 0, \
     0, 0, 0, 0, 0, 0, 1, 0, \
     0, 1, 1, 1, 1, 1, 0, 0, \
-    0, 0, 0, 0, 0, 0, 0, 0, \
+    0, 0, 0, 0, 0, 0, 0, 0 \
 }
 
-int ST [display.DISPLAYS][display.WIDTH * display.HEIGHT] = { B, V, V, V, V, V, V, V, V, V, V, B };
+// X (index) | B (sample rate = 44100) | C (nfft (fft size) = 128)
+// Q (result) = (X * 44100 / 128)
+#define r1 { 0, 1 } // BASS (Q1 | Q2 = 0Hz to 344.53125Hz) 
+#define r2 { 1, 10 } // VOCALS (Q1 | Q2 = 344.53125Hz to 3445.3125Hz) 
+#define r3 { 1, 2 }
+int r [MATRIX_DISPLAYS][2] =                             { r1, r2, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3 };
+int ST [MATRIX_DISPLAYS][MATRIX_WIDTH * MATRIX_HEIGHT] = { B,  V,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S  };
+float sum = 0;
 
 // RECORD SILENCE
 const int s_time = 500;

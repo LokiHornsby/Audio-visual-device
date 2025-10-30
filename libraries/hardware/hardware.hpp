@@ -13,8 +13,8 @@ int binarytoint(std::bitset<8> a);
 // https://github.com/raspberrypi/pico-examples/blob/master/spi/max7219_32x8_spi/max7219_32x8_spi.c
 // LED matrix 
 namespace digishuo {
-    // VCC - VBUS
-    // GND - AGND
+    // VCC - VBUS/VSYS
+    // GND - GND
     // DIN - GP11
     // CS - GP13
     // CLK - GP10
@@ -26,15 +26,15 @@ namespace digishuo {
 
     class MAX7219 {
         public:
-            static const int DISPLAYS = 12;
-            static const int WIDTH = 8;
-            static const int HEIGHT = 8;
+            #define MATRIX_DISPLAYS 16
+            #define MATRIX_WIDTH 8
+            #define MATRIX_HEIGHT 8
+            
             void init();
             void write(uint8_t reg, uint8_t data, bool block); // (define first set of rows - draw set of rows to each display - move onto next row)
             void update(); 
             void clear();
-            std::bitset<digishuo::MAX7219::WIDTH> rows [digishuo::MAX7219::DISPLAYS][digishuo::MAX7219::HEIGHT];
-            void resetRows();
+            std::bitset<MATRIX_WIDTH> columns;
     };
 }
 

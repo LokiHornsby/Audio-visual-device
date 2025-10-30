@@ -3,19 +3,11 @@
 
 #include "hardware.hpp"
 
-int binarytoint(std::bitset<8> a){
+int binarytoint(std::bitset<MATRIX_WIDTH> a){
     return static_cast<int>(a.to_ulong());
 }
 
 namespace digishuo {
-    void MAX7219::resetRows(){
-        for (int d = 0; d < DISPLAYS; d++){
-            for (int y = 0; y < HEIGHT; y++){
-                rows[d][y].reset();
-            }
-        }
-    }
-
     void MAX7219::update(){
         gpio_put(pin::CS, 1);
     }
@@ -63,7 +55,7 @@ namespace digishuo {
         
         // write to all displays?
         if (block){
-            for (int d = 0; d < DISPLAYS; d++){ spi_write_blocking(spi1, buf, 2); }
+            for (int d = 0; d < MATRIX_DISPLAYS; d++){ spi_write_blocking(spi1, buf, 2); }
             update();
         } else {
             spi_write_blocking(spi1, buf, 2);
@@ -71,9 +63,10 @@ namespace digishuo {
     }
 
     void MAX7219::clear(){
-        std::bitset<WIDTH> columns;
-        for (int x = 0; x < HEIGHT; x++){ // rows
-            write(x+1, binarytoint(columns), true); // columns
+        columns.reset();
+
+        for (int y = 0; y < MATRIX_HEIGHT; y++){ // rows
+            write(y+1, binarytoint(columns), true); // columns
         }
     }
 }

@@ -159,31 +159,41 @@ int main (){
         switch (sel) {
             // FFT
             case 0:
-                display.clear();
-
                 if (performFFT(v)){
-                    // select row
-                    for (int x = 0; x < display.HEIGHT; x++){
-                        // select display
-                        for (int d = 0; d < display.DISPLAYS; d++){
-                            // construct a row of bits
-                            for (int bit = 0; bit < display.WIDTH; bit++){
-                                int ffti = (d * display.WIDTH) + (bit);
+                    display.clear();
 
-                                display.rows[0][0].set(
-                                    (display.WIDTH - 1) - bit, // position
-                                    cout[ffti].i > (microphone.getPeak() / display.WIDTH) * x // display bit? (if it's more than range)
-                                );
+                    // build the bin8 array (stores the height of each bin with a maximum value of MATRIX_HEIGHT)
+
+                    // loop through each fft bin
+                    for (int bin = 0; bin < nfft; bin++){
+                        // calculate height of an FFT bin (max = MATRIX_HEIGHT)
+                        for (int lvl = 0; lvl < MATRIX_HEIGHT; lvl++){
+                            int l = (microphone.getPeak() / MATRIX_HEIGHT);
+                            int l1 = l * lvl;
+                            int l2 = l * (lvl + 1);
+
+                            if (cout[bin].i >= l1 && cout[bin].i <= l2) { bin8[bin] = lvl; }
+                        }
+                    }
+
+                    // draw each row and thus visually build the height of each bin using the bin8 array
+
+                    // loop through each height
+                    for (int y = 0; y < MATRIX_HEIGHT; y++){
+                        // loop through each display
+                        for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                            // loop through each column
+                            display.columns.reset();
+                            
+                            for (int x = 0; x < MATRIX_WIDTH; x++){
+                                display.columns.set((MATRIX_WIDTH - 1) - x, y <= bin8[(d * MATRIX_WIDTH) + x]);
                             }
-
-                            // write a row of bits (x) to display (d)
-                            display.write(x+1, binarytoint(display.rows[0][0]), false);
-
-                            // reset row
-                            display.rows[0][0].reset();
+                            
+                            // draw columns in a single display
+                            display.write(y+1, binarytoint(display.columns), false);
                         }
 
-                        // update each display with a row of bits
+                        // update display
                         display.update();
                     }
 
@@ -199,14 +209,14 @@ int main (){
                 display.clear();
 
                 // build all rows
-                for (int y = 0; y < display.HEIGHT; y++){
+                for (int y = 0; y < MATRIX_HEIGHT; y++){
                     // build all displays
-                    for (int d = 0; d < display.DISPLAYS; d++){
+                    for (int d = 0; d < MATRIX_DISPLAYS; d++){
                         // build a row
-                        for (int x = 0; x < display.WIDTH; x++){
+                        for (int x = 0; x < MATRIX_WIDTH; x++){
                             display.rows[0].set(
-                                (display.WIDTH - 1) - x, 
-                                v > (microphone.getPeak() / (float)nfft) * (float)(x + (d * display.WIDTH))
+                                (MATRIX_WIDTH - 1) - x, 
+                                v > (microphone.getPeak() / (float)nfft) * (float)(x + (d * MATRIX_WIDTH))
                             );
                         }
         
@@ -241,20 +251,20 @@ int main (){
                         barpos = 0;
                     }
 
-                    if (dis > display.DISPLAYS - 1){
+                    if (dis > MATRIX_DISPLAYS - 1){
                         //display.clear();
                         dis = 0;
                     }
 
-                    for (int y = 0; y < display.HEIGHT; y++){
+                    for (int y = 0; y < MATRIX_HEIGHT; y++){
                         // set point
                         if (barpos < 8) { 
                             display.rows[y].set(barpos, y == o_store); 
                         }
                             
                         // build all displays
-                        for (int d = 0; d < display.DISPLAYS; d++){
-                            if (d == (display.DISPLAYS - 1) - dis){ // && y == o_height 
+                        for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                            if (d == (MATRIX_DISPLAYS - 1) - dis){ // && y == o_height 
                                 if (barpos < 7) { display.rows[y].set(barpos + 1, true); }
                                 
                                 display.write(y + 1, binarytoint(display.rows[y]), false);
@@ -272,14 +282,14 @@ int main (){
                     t = 0;
                 }*/
 
-                break;
+                break;            
 
             // Instruments
-            case 3:
-                if (performFFT(v)){
-                    for (int y = 0; y < display.HEIGHT; y++){
-                        for (int d = 0; d < display.DISPLAYS; d++){
-                            for (int x = 0; x < display.WIDTH; x++){
+            case 3: // this needs optimising
+                /*if (performFFT(v)){
+                    for (int y = 0; y < MATRIX_HEIGHT; y++){
+                        for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                            for (int x = 0; x < MATRIX_WIDTH; x++){
                                 // calculate fft sum of a range
                                 for (int ri = r[d][0]; ri < r[d][1]; ri++){
                                     sum += cout[ri].i;
@@ -289,16 +299,16 @@ int main (){
                                 bool val;
 
                                 // if fft sum of a range is more than 0
-                                if (sum > microphone.getPeak() * 2) {
+                                if (sum > 0) {
                                     // set value to integer image (ST = STORE)
-                                    val = ST[d][(display.WIDTH * y) + x];
+                                    val = ST[d][(MATRIX_WIDTH * y) + x];
                                 } else {
                                     // set value to false
                                     val = false;
                                 }
 
                                 // set value in bitset array
-                                display.rows[d][(display.HEIGHT - 1) - y].set(x, val);
+                                display.rows[d][(MATRIX_HEIGHT - 1) - y].set(x, val);
 
                                 // reset sum
                                 sum = 0;
@@ -312,12 +322,13 @@ int main (){
 
                     // free resources
                     performFFT(v);
-                }
+                }*/
 
                 break;
 
             case 4:
                 break;
+
             case 5:
                 break;
             case 6:
@@ -364,12 +375,12 @@ int main (){
                 display.clear();
 
                 // build all rows
-                for (int y = 0; y < display.HEIGHT; y++){
+                for (int y = 0; y < MATRIX_HEIGHT; y++){
                     // build all displays
-                    for (int d = 0; d < display.DISPLAYS; d++){
+                    for (int d = 0; d < MATRIX_DISPLAYS; d++){
                         // build a row
-                        for (int x = 0; x < display.WIDTH; x++){
-                            display.rows[0].set(7 - x, v - silence > (microphone.getPeak() / nfft) * (x + (d * display.WIDTH)));
+                        for (int x = 0; x < MATRIX_WIDTH; x++){
+                            display.rows[0].set(7 - x, v - silence > (microphone.getPeak() / nfft) * (x + (d * MATRIX_WIDTH)));
                         }
         
                         display.write(y + 1, binarytoint(display.rows[0]), false);
