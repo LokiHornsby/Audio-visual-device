@@ -109,8 +109,6 @@ namespace pimoroni {
         gpio_put(pin::CS, 1);
         gpio_set_function(pin::SCK, GPIO_FUNC_SPI);
         gpio_set_function(pin::MOSI, GPIO_FUNC_SPI);
-
-        
     }
 
     void PicoRGBKeypad::update() {

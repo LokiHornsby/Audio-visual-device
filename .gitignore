@@ -1,5 +1,2 @@
-
-!build/
-build/*
-!build/blink.elf
-.vscode/
+build
+!.vscode/*

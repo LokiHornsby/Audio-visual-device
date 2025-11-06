@@ -5,6 +5,7 @@
 #include "hardware/i2c.h"
 #include "hardware/spi.h"
 #include "hardware/adc.h"
+#include <stdint.h>
 
 int binarytoint(std::bitset<8> a);
 
@@ -29,6 +30,8 @@ namespace digishuo {
             #define MATRIX_DISPLAYS 16
             #define MATRIX_WIDTH 8
             #define MATRIX_HEIGHT 8
+            
+            int brightness [16] { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F };
             
             void init();
             void write(uint8_t reg, uint8_t data, bool block); // (define first set of rows - draw set of rows to each display - move onto next row)

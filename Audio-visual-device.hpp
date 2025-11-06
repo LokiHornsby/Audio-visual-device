@@ -39,10 +39,8 @@ kiss_fft_cpx* cout;
 kiss_fft_cfg cfg_f;
 const int nfft = (MATRIX_DISPLAYS * MATRIX_WIDTH);
 float sample [nfft] = { 0 };
+int binheight [nfft] = { };
 int ffti = 0;
-
-// FFT DRAW
-int bin8 [nfft] = { };
 
 // ONSET SCANNING
 int barpos = 0;
@@ -55,6 +53,8 @@ int o_v = 0;
 const int o_max = 100;
 
 // Frequency detection
+const int instrument_detail = 8;
+
 #define B { \
     0, 0, 0, 0, 0, 0, 0, 0, \
     0, 0, 1, 1, 1, 0, 0, 0, \
@@ -89,12 +89,11 @@ const int o_max = 100;
     0, 0, 0, 0, 0, 0, 0, 0 \
 }
 
-// X (index) | B (sample rate = 44100) | C (nfft (fft size) = 128)
-// Q (result) = (X * 44100 / 128)
-#define r1 { 0, 1 } // BASS (Q1 | Q2 = 0Hz to 344.53125Hz) 
-#define r2 { 1, 10 } // VOCALS (Q1 | Q2 = 344.53125Hz to 3445.3125Hz) 
-#define r3 { 1, 2 }
-int r [MATRIX_DISPLAYS][2] =                             { r1, r2, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3 };
+// https://stackoverflow.com/questions/4364823/how-do-i-obtain-the-frequencies-of-each-value-in-an-fft 
+#define r1 { 11, 11, 11, 11, 11, 11, 11, 11 } 
+#define r2 { 1, 25 } 
+#define r3 { 1, 60 }
+int r [MATRIX_DISPLAYS][instrument_detail] =             { r1, r2, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3, r3 };
 int ST [MATRIX_DISPLAYS][MATRIX_WIDTH * MATRIX_HEIGHT] = { B,  V,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S,  S  };
 float sum = 0;
 

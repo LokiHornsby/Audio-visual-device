@@ -83,6 +83,11 @@ bool performFFT(float v){
         // execute transform for 1D
         kiss_fft(cfg_f, cin , cout);
 
+        // calculate height as a divisor of MATRIX_HEIGHT
+        for (int i = 0; i < nfft; ++i){
+            binheight[i] = (cout[i].i / microphone.getPeak()) * MATRIX_HEIGHT;
+        }
+
         // increcement index out of bounds
         ffti++;
 
@@ -162,19 +167,20 @@ int main (){
                 if (performFFT(v)){
                     display.clear();
 
-                    // build the bin8 array (stores the height of each bin with a maximum value of MATRIX_HEIGHT)
+                    // brightness
+                    for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                        int sum = 0;
 
-                    // loop through each fft bin
-                    for (int bin = 0; bin < nfft; bin++){
-                        // calculate height of an FFT bin (max = MATRIX_HEIGHT)
-                        for (int lvl = 0; lvl < MATRIX_HEIGHT; lvl++){
-                            int l = (microphone.getPeak() / MATRIX_HEIGHT);
-                            int l1 = l * lvl;
-                            int l2 = l * (lvl + 1);
-
-                            if (cout[bin].i >= l1 && cout[bin].i <= l2) { bin8[bin] = lvl; }
+                        for (size_t i = 0; i < MATRIX_WIDTH; i++){
+                            sum += binheight[(d * MATRIX_WIDTH) + i];
                         }
-                    }
+                        
+                        // intensity
+                        sum = sum / (MATRIX_WIDTH * MATRIX_HEIGHT);
+                        display.write(0X0A, sum * 15, false);
+                    }    
+
+                    display.update();
 
                     // draw each row and thus visually build the height of each bin using the bin8 array
 
@@ -186,7 +192,11 @@ int main (){
                             display.columns.reset();
                             
                             for (int x = 0; x < MATRIX_WIDTH; x++){
-                                display.columns.set((MATRIX_WIDTH - 1) - x, y <= bin8[(d * MATRIX_WIDTH) + x]);
+                                // if selected pos (x, y) is below bin8's value then set it to true
+                                display.columns.set(
+                                    (MATRIX_WIDTH - 1) - x, 
+                                    y <= binheight[(d * MATRIX_WIDTH) + x] // we can use our matrix's lengths to select a bin
+                                );
                             }
                             
                             // draw columns in a single display
@@ -285,48 +295,64 @@ int main (){
                 break;            
 
             // Instruments
-            case 3: // this needs optimising
-                /*if (performFFT(v)){
+            case 3: 
+                if (performFFT(v)){
+                    int b [MATRIX_DISPLAYS] = { };
+
+                    // calculate if we should display a letter
+                    for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                        int avg = 0;
+
+                        for (int ri = 0; ri < instrument_detail; ri++){
+                            avg += binheight[r[d][ri]];
+                        }
+
+                        // intensity
+                        b[d] = display.brightness[((avg / instrument_detail) / MATRIX_HEIGHT) * 15];
+                        display.write(0X0A, b[d], false);
+                    }
+
+                    display.update();
+
+                    // loop through each height
                     for (int y = 0; y < MATRIX_HEIGHT; y++){
+                        // loop through each display
                         for (int d = 0; d < MATRIX_DISPLAYS; d++){
-                            for (int x = 0; x < MATRIX_WIDTH; x++){
-                                // calculate fft sum of a range
-                                for (int ri = r[d][0]; ri < r[d][1]; ri++){
-                                    sum += cout[ri].i;
+                            // loop through each column
+                            display.columns.reset();
+                            
+                            if (b[d] > 1){
+                                for (int x = 0; x < MATRIX_WIDTH; x++){
+                                    display.columns.set((MATRIX_WIDTH - 1) - x, ST[d][(y * MATRIX_WIDTH) + x]);
                                 }
-                                
-                                // calculate value to pass to bitset array
-                                bool val;
-
-                                // if fft sum of a range is more than 0
-                                if (sum > 0) {
-                                    // set value to integer image (ST = STORE)
-                                    val = ST[d][(MATRIX_WIDTH * y) + x];
-                                } else {
-                                    // set value to false
-                                    val = false;
-                                }
-
-                                // set value in bitset array
-                                display.rows[d][(MATRIX_HEIGHT - 1) - y].set(x, val);
-
-                                // reset sum
-                                sum = 0;
                             }
 
-                            display.write(y + 1, binarytoint(display.rows[d][y]), false);
+                            // draw columns in a single display
+                            display.write(y+1, binarytoint(display.columns), false);
                         }
 
                         display.update();
                     }
-
+                    
                     // free resources
                     performFFT(v);
-                }*/
+                }
 
                 break;
 
             case 4:
+                for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                    uint8_t b = 0b00000000;
+
+                    if (d == 0) {
+                        b = 0b00000001;
+                    }
+                    
+                    display.write(1, b, false);
+                }
+
+                display.update();
+
                 break;
 
             case 5:
