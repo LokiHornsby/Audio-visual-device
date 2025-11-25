@@ -1,7 +1,7 @@
-// NEEDS UNUSED VARIABLES REMOVED
-
 #pragma once
 #include <bits/stdc++.h>
+
+// ------------------------------------------------------ NEEDS UNUSED VARIABLES REMOVED AND TIDY
 
 // HARDWARE
 #include "libraries/hardware/hardware.hpp"
@@ -41,6 +41,11 @@ const int nfft = (MATRIX_DISPLAYS * MATRIX_WIDTH);
 float sample [nfft] = { 0 };
 int binheight [nfft] = { };
 int ffti = 0;
+
+// average fft of silence
+int fftavg [nfft] = { };
+int avg = 1024;
+int cavg = 0;
 
 // ONSET SCANNING
 int barpos = 0;

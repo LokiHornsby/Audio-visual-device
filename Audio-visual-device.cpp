@@ -116,10 +116,12 @@ int main (){
     microphone.init();
     display.init();
 
-    selc[1] = 255;
+    
+    
+    //selc[1] = 255;
 
     while (true){
-        // button index
+        /*// button index
         ind++;
 
         if (ind > 15){
@@ -155,8 +157,27 @@ int main (){
         keypad.illuminate(ind, 255, 255, 255); 
         keypad.illuminate(prevsel, 255, 255, 0);
         keypad.illuminate(sel, selc[0], selc[1], selc[2]);
-        keypad.update();
+        keypad.update();*/
 
+        // selected button
+        ind++;
+
+        if (ind > 15){
+            ind = 0;
+        }
+
+        // if the current index's button is selected and hasn't already been selected
+        if (keypad.get_button_states() & (0b1 << ind) && sel != ind) {
+            // reset keypad
+            keypad.clear();
+
+            // reset vars
+            cavg = 0;
+
+            // select index
+            sel = ind;
+        }
+        
         // input
         float v = microphone.getVoltage();
 
@@ -164,51 +185,85 @@ int main (){
         switch (sel) {
             // FFT
             case 0:
-                if (performFFT(v)){
-                    display.clear();
-
-                    // brightness
-                    for (int d = 0; d < MATRIX_DISPLAYS; d++){
-                        int sum = 0;
-
-                        for (size_t i = 0; i < MATRIX_WIDTH; i++){
-                            sum += binheight[(d * MATRIX_WIDTH) + i];
+                if (cavg < avg){
+                    if (performFFT(v)){
+                        // add to fft avg array
+                        for (int i = 0; i < nfft; i++){
+                            fftavg[i] += binheight[i];
                         }
+
+                        // increment button colour
+                        int q = ((float)cavg / (float)avg) * 255;
+                        keypad.illuminate(0, q, q, q); 
+
+                        cavg++;
                         
-                        // intensity
-                        sum = sum / (MATRIX_WIDTH * MATRIX_HEIGHT);
-                        display.write(0X0A, sum * 15, false);
-                    }    
+                        // free resources
+                        performFFT(v);
+                    }
+                } else {
+                    if (performFFT(v)){
+                        display.clear();
 
-                    display.update();
+                        // brightness
+                        int highest = 0;
+                        int h_i;
 
-                    // draw each row and thus visually build the height of each bin using the bin8 array
-
-                    // loop through each height
-                    for (int y = 0; y < MATRIX_HEIGHT; y++){
-                        // loop through each display
                         for (int d = 0; d < MATRIX_DISPLAYS; d++){
-                            // loop through each column
-                            display.columns.reset();
-                            
-                            for (int x = 0; x < MATRIX_WIDTH; x++){
-                                // if selected pos (x, y) is below bin8's value then set it to true
-                                display.columns.set(
-                                    (MATRIX_WIDTH - 1) - x, 
-                                    y <= binheight[(d * MATRIX_WIDTH) + x] // we can use our matrix's lengths to select a bin
-                                );
+                            int sum = 0;
+
+                            for (size_t i = 0; i < MATRIX_WIDTH; i++){
+                                sum += binheight[(d * MATRIX_WIDTH) + i];
                             }
                             
-                            // draw columns in a single display
-                            display.write(y+1, binarytoint(display.columns), false);
+                            if (sum > highest){
+                                h_i = d;
+                                highest = sum;
+                            }
+                        }    
+
+                        for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                            if (d == h_i){
+                                display.write(0X0A, 15, false);
+                            } else {
+                                display.write(0X0A, 0, false);
+                            }
+                        }
+                        // -------------------------------------- TODO; take an average of each display (silence) then see if it goes above - if so light it up
+                        //                                              make a nice loading animation on the keypad
+
+                        display.update();
+
+                        // draw each row and thus visually build the height of each bin using the bin8 array
+
+                        // loop through each height
+                        for (int y = 0; y < MATRIX_HEIGHT; y++){
+                            // loop through each display
+                            for (int d = 0; d < MATRIX_DISPLAYS; d++){
+                                // loop through each column
+                                display.columns.reset();
+                                
+                                for (int x = 0; x < MATRIX_WIDTH; x++){
+                                    int ind = (d * MATRIX_WIDTH) + x;
+
+                                    // if selected pos (x, y) is below bin8's value then set it to true
+                                    display.columns.set(
+                                        (MATRIX_WIDTH - 1) - x, 
+                                        y <= binheight[ind] - (fftavg[ind] / avg) // set the height to anything above the average taken
+                                    );
+                                }
+                                
+                                // draw columns in a single display
+                                display.write(y+1, binarytoint(display.columns), false);
+                            }
+
+                            // update display
+                            display.update();
                         }
 
-                        // update display
-                        display.update();
+                        // free resources
+                        performFFT(v);
                     }
-
-                    // free resources
-                    performFFT(v);
                 }
 
                 break;
@@ -238,11 +293,14 @@ int main (){
                     display.update();
                 }*/
 
+                keypad.illuminate(1, 255, 0, 0); 
+                
+
                 break;
 
             // ONSET SCANNING 
             // ------------------------------------------------------------------- Average and peak??
-            case 2: 
+            case 3: 
                 /*
                 o_v = ((v - silence) / microphone.getPeak()) * 8.0f;
                 if (o_v > o_height) { o_height = o_v; }
@@ -295,7 +353,7 @@ int main (){
                 break;            
 
             // Instruments
-            case 3: 
+            case 4: 
                 if (performFFT(v)){
                     int b [MATRIX_DISPLAYS] = { };
 
@@ -340,7 +398,7 @@ int main (){
 
                 break;
 
-            case 4:
+            case 5:
                 for (int d = 0; d < MATRIX_DISPLAYS; d++){
                     uint8_t b = 0b00000000;
 
@@ -355,8 +413,6 @@ int main (){
 
                 break;
 
-            case 5:
-                break;
             case 6:
                 break;
             case 7:
@@ -375,9 +431,11 @@ int main (){
                 break;
             case 14:
                 break;
+            case 15:
+                break;
 
             // RECORD SILENCE
-            case 15:
+            case 16:
                 /*
                 buttonup = 15;
 
@@ -419,6 +477,8 @@ int main (){
 
                 break;
         }
+
+        keypad.update();
     }
 
     return 0;
