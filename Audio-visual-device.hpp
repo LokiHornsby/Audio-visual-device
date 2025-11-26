@@ -1,5 +1,11 @@
 #pragma once
 #include <bits/stdc++.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <stdio.h>
+#include <algorithm>
+
+
 
 // ------------------------------------------------------ NEEDS UNUSED VARIABLES REMOVED AND TIDY
 
@@ -43,9 +49,9 @@ int binheight [nfft] = { };
 int ffti = 0;
 
 // average fft of silence
+bool fftavgtaken = false;
 int fftavg [nfft] = { };
-int avg = 1024;
-int cavg = 0;
+int fftcavg = 1;
 
 // ONSET SCANNING
 int barpos = 0;

@@ -1,7 +1,7 @@
 #include "Audio-visual-device.hpp"
 
-#include <math.h>
-#include <stdio.h>
+
+
 
 /*std::bitset<8> addbinary(std::bitset<8> a, std::bitset<8> b){
     int c = 0;
@@ -116,8 +116,6 @@ int main (){
     microphone.init();
     display.init();
 
-    
-    
     //selc[1] = 255;
 
     while (true){
@@ -168,11 +166,10 @@ int main (){
 
         // if the current index's button is selected and hasn't already been selected
         if (keypad.get_button_states() & (0b1 << ind) && sel != ind) {
-            // reset keypad
+            // reset 
+            fftcavg = 0;
             keypad.clear();
-
-            // reset vars
-            cavg = 0;
+            display.clear();
 
             // select index
             sel = ind;
@@ -185,28 +182,31 @@ int main (){
         switch (sel) {
             // FFT
             case 0:
-                if (cavg < avg){
-                    if (performFFT(v)){
-                        // add to fft avg array
+                if (performFFT(v)){
+                    if (fftcavg < 255){
+                        // add to fft avg array (peak)
                         for (int i = 0; i < nfft; i++){
-                            fftavg[i] += binheight[i];
+                            if (fftavg[i] < binheight[i]){ fftavg[i] = binheight[i]; };
                         }
 
-                        // increment button colour
-                        int q = ((float)cavg / (float)avg) * 255;
-                        keypad.illuminate(0, q, q, q); 
+                        // FIX THIS - AVERAGING NEEDS FINER DETAIL TO REMOVE NOISE
 
-                        cavg++;
-                        
-                        // free resources
-                        performFFT(v);
-                    }
-                } else {
-                    if (performFFT(v)){
+                        // flash button (use sinewave to flash)
+                        fftcavg++;
+                        float flashes = 3.5;
+                        int q = (0.5 * (1 + sin(((-M_PI/2.0) + ((M_PI * 2) * flashes) * ((float)fftcavg / 255.0))))) * 255;
+                        bool q2 = (fftcavg < ((float)255.0 / flashes) * (flashes - 0.5));
+         
+                        keypad.illuminate(0, 
+                            q2 ? q : 0, 
+                            q2 ? 0 : q, 
+                            0
+                        ); 
+                    } else {
                         display.clear();
 
                         // brightness
-                        int highest = 0;
+                        /*int highest = 0;
                         int h_i;
 
                         for (int d = 0; d < MATRIX_DISPLAYS; d++){
@@ -228,11 +228,9 @@ int main (){
                             } else {
                                 display.write(0X0A, 0, false);
                             }
-                        }
-                        // -------------------------------------- TODO; take an average of each display (silence) then see if it goes above - if so light it up
-                        //                                              make a nice loading animation on the keypad
+                        }*/
 
-                        display.update();
+                        //display.update();
 
                         // draw each row and thus visually build the height of each bin using the bin8 array
 
@@ -249,7 +247,7 @@ int main (){
                                     // if selected pos (x, y) is below bin8's value then set it to true
                                     display.columns.set(
                                         (MATRIX_WIDTH - 1) - x, 
-                                        y <= binheight[ind] - (fftavg[ind] / avg) // set the height to anything above the average taken
+                                        y <= binheight[ind] - fftavg[ind] // set the height to anything above the average taken
                                     );
                                 }
                                 
@@ -260,10 +258,10 @@ int main (){
                             // update display
                             display.update();
                         }
-
-                        // free resources
-                        performFFT(v);
                     }
+                    
+                    // free resources
+                    performFFT(v);
                 }
 
                 break;
