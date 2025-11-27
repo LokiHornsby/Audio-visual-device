@@ -84,10 +84,16 @@ bool performFFT(float v){
         kiss_fft(cfg_f, cin , cout);
 
         // calculate height as a divisor of MATRIX_HEIGHT
-        for (int i = 0; i < nfft; ++i){
-            binheight[i] = (cout[i].i / microphone.getPeak()) * MATRIX_HEIGHT;
-        }
+        //for (int i = 0; i < nfft; ++i){
+            //binheight[i][0] = cout[i].i;
+            //binheight[i][1] = (cout[i].i / microphone.getPeak()) * MATRIX_HEIGHT;
+        //}
 
+        // record data
+        for (int i = 0; i < nfft; i++){
+            fftdata[i] = cout[i].i;
+        }
+        
         // increcement index out of bounds
         ffti++;
 
@@ -168,6 +174,7 @@ int main (){
         if (keypad.get_button_states() & (0b1 << ind) && sel != ind) {
             // reset 
             fftcavg = 0;
+            fftavgtaken = false;
             keypad.clear();
             display.clear();
 
@@ -184,16 +191,14 @@ int main (){
             case 0:
                 if (performFFT(v)){
                     if (fftcavg < 255){
-                        // add to fft avg array (peak)
+                        // record peaks 
                         for (int i = 0; i < nfft; i++){
-                            if (fftavg[i] < binheight[i]){ fftavg[i] = binheight[i]; };
+                            silenttake[i] += fftdata[i]; // peak value
                         }
-
-                        // FIX THIS - AVERAGING NEEDS FINER DETAIL TO REMOVE NOISE
 
                         // flash button (use sinewave to flash)
                         fftcavg++;
-                        float flashes = 3.5;
+                        float flashes = 10.5;
                         int q = (0.5 * (1 + sin(((-M_PI/2.0) + ((M_PI * 2) * flashes) * ((float)fftcavg / 255.0))))) * 255;
                         bool q2 = (fftcavg < ((float)255.0 / flashes) * (flashes - 0.5));
          
@@ -203,7 +208,27 @@ int main (){
                             0
                         ); 
                     } else {
+                        // calculate midpoint using recorded peaks
+                        if (!fftavgtaken){
+                            for (int i = 0; i < nfft; i++){
+                                silenttake[i] = silenttake[i] / 255.0f;
+                            }
+                            
+                            fftavgtaken = true;
+                        }
+
                         display.clear();
+
+                        // -------------------------------------------------------------------------------- introduce a falling peak
+                        // set our value to the highest peak
+                        /*for (int i = 0; i < nfft; i++){
+                            if (fftpeaks[i] > binheight[i]){ 
+                                fftpeaks[i]--; 
+                            } else {
+                                fftpeaks[i] = binheight[i];
+                            }
+                        }*/
+                        
 
                         // brightness
                         /*int highest = 0;
@@ -235,6 +260,7 @@ int main (){
                         // draw each row and thus visually build the height of each bin using the bin8 array
 
                         // loop through each height
+                        
                         for (int y = 0; y < MATRIX_HEIGHT; y++){
                             // loop through each display
                             for (int d = 0; d < MATRIX_DISPLAYS; d++){
@@ -247,7 +273,7 @@ int main (){
                                     // if selected pos (x, y) is below bin8's value then set it to true
                                     display.columns.set(
                                         (MATRIX_WIDTH - 1) - x, 
-                                        y <= binheight[ind] - fftavg[ind] // set the height to anything above the average taken
+                                        y < ((fftdata[ind] - silenttake[ind]) / microphone.getPeak()) * MATRIX_HEIGHT// y < fftavg[ind] + binheight[ind] ||  // set the height to anything above the average taken
                                     );
                                 }
                                 
@@ -352,7 +378,7 @@ int main (){
 
             // Instruments
             case 4: 
-                if (performFFT(v)){
+                /*if (performFFT(v)){
                     int b [MATRIX_DISPLAYS] = { };
 
                     // calculate if we should display a letter
@@ -392,7 +418,7 @@ int main (){
                     
                     // free resources
                     performFFT(v);
-                }
+                }*/
 
                 break;
 

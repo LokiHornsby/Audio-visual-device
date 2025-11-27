@@ -45,13 +45,15 @@ kiss_fft_cpx* cout;
 kiss_fft_cfg cfg_f;
 const int nfft = (MATRIX_DISPLAYS * MATRIX_WIDTH);
 float sample [nfft] = { 0 };
-int binheight [nfft] = { };
+int binheight [nfft][2] = { };
 int ffti = 0;
-
-// average fft of silence
+int fftpeaks [nfft] = { };
 bool fftavgtaken = false;
-int fftavg [nfft] = { };
+
 int fftcavg = 1;
+
+float silenttake [nfft] = { };
+float fftdata [nfft] = { };
 
 // ONSET SCANNING
 int barpos = 0;
