@@ -12,12 +12,10 @@
             ],
             "defines": [],
             "compilerPath": "${userHome}/.pico-sdk/toolchain/14_2_Rel1/bin/arm-none-eabi-gcc.exe",
-            "compileCommands": [
-                "${workspaceFolder}/build/compile_commands.json"
-            ],
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "cStandard": "c17",
             "cppStandard": "c++14",
-            "intelliSenseMode": "${default}"
+            "intelliSenseMode": "linux-gcc-arm"
         }
     ],
     "version": 4

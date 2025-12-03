@@ -1,8 +1,5 @@
 #include "Audio-visual-device.hpp"
 
-
-
-
 /*std::bitset<8> addbinary(std::bitset<8> a, std::bitset<8> b){
     int c = 0;
 
@@ -47,7 +44,7 @@ void back(){
 }
 
 // FFT
-bool performFFT(float v){
+bool performFFT(float v){ // ------------------------------------------------------------ make FFT larger without lag
     // size of sample
     int size = nfft - 1;
 
@@ -216,51 +213,10 @@ int main (){
                             
                             fftavgtaken = true;
                         }
-
+                      
                         display.clear();
 
-                        // -------------------------------------------------------------------------------- introduce a falling peak
-                        // set our value to the highest peak
-                        /*for (int i = 0; i < nfft; i++){
-                            if (fftpeaks[i] > binheight[i]){ 
-                                fftpeaks[i]--; 
-                            } else {
-                                fftpeaks[i] = binheight[i];
-                            }
-                        }*/
-                        
-
-                        // brightness
-                        /*int highest = 0;
-                        int h_i;
-
-                        for (int d = 0; d < MATRIX_DISPLAYS; d++){
-                            int sum = 0;
-
-                            for (size_t i = 0; i < MATRIX_WIDTH; i++){
-                                sum += binheight[(d * MATRIX_WIDTH) + i];
-                            }
-                            
-                            if (sum > highest){
-                                h_i = d;
-                                highest = sum;
-                            }
-                        }    
-
-                        for (int d = 0; d < MATRIX_DISPLAYS; d++){
-                            if (d == h_i){
-                                display.write(0X0A, 15, false);
-                            } else {
-                                display.write(0X0A, 0, false);
-                            }
-                        }*/
-
-                        //display.update();
-
-                        // draw each row and thus visually build the height of each bin using the bin8 array
-
                         // loop through each height
-                        
                         for (int y = 0; y < MATRIX_HEIGHT; y++){
                             // loop through each display
                             for (int d = 0; d < MATRIX_DISPLAYS; d++){
@@ -270,10 +226,17 @@ int main (){
                                 for (int x = 0; x < MATRIX_WIDTH; x++){
                                     int ind = (d * MATRIX_WIDTH) + x;
 
+                                    // ----------------- need to find correct maxium for FFT bin https://stackoverflow.com/questions/10754549/fft-bin-width-clarification
+                                    int val = ((fftdata[ind] - silenttake[ind]) / microphone.getPeak()) * (MATRIX_HEIGHT - 1); 
+                                    
+                                    // -------------------------- make FFT smoother so falling peaks are visislbe
+                                    if (val > fftfall[ind]){ fftfall[ind] = val; }
+                                    fftfall[ind]--;
+
                                     // if selected pos (x, y) is below bin8's value then set it to true
                                     display.columns.set(
-                                        (MATRIX_WIDTH - 1) - x, 
-                                        y < ((fftdata[ind] - silenttake[ind]) / microphone.getPeak()) * MATRIX_HEIGHT// y < fftavg[ind] + binheight[ind] ||  // set the height to anything above the average taken
+                                        (MATRIX_WIDTH - 1) - x,
+                                        y == fftfall[ind] || y < val//y < val || y == fftfall[ind] // y < fftavg[ind] + binheight[ind] ||  // set the height to anything above the average taken
                                     );
                                 }
                                 
